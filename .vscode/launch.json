@@ -1,0 +1,21 @@
+{
+    "version": "1.0.0",
+    "configurations": [
+        {
+            "name": "Python: 現在のファイル",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "run YYytdlp_gui.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/YYytdlp_gui/YYytdlp_gui.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+    ]
+}
