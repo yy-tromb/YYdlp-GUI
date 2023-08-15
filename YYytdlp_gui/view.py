@@ -75,7 +75,7 @@ class SettingsView:
             route="/settings",
             appbar=ft.AppBar(
                 title=ft.Text("YYytdlp_gui v0.1 Settings"),
-                bgcolor=ft.colors.ORANGE,
+                bgcolor=ft.colors.ORANGE_700,
             ),
             controls=[
                 ft.Text(
