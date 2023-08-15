@@ -10,10 +10,10 @@
             "justMyCode": false
         },
         {
-            "name": "run YYytdlp_gui.py",
+            "name": "run YYdlp_GUI.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/YYytdlp_gui/YYytdlp_gui.py",
+            "program": "${workspaceFolder}/YYdlp_gui/YYdlp_GUI.py",
             "console": "integratedTerminal",
             "justMyCode": false
         },

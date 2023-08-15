@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "yyytdlp-gui"
+name = "YYdlp-GUI"
 version = "0.1.0"
 description = "my yt-dlp GUI wrapper"
 authors = ["yy-tromb <107352731+yy-tromb@users.noreply.github.com>"]

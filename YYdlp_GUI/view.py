@@ -16,7 +16,7 @@ class View:
 
     def main(self, page: ft.Page) -> None:
         self.page = page
-        page.title = "YYytdlp_gui v0.1"
+        page.title = "YYdlp-GUI v0.1"
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         page.horizontal_alignment = ft.MainAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
@@ -58,12 +58,14 @@ class MainView:
         self.page = page  # for page button
         self.view = ft.View(
             route="/main",
-            appbar=myctls.MyAppBar(page=page, title="YYytdlp_gui v0.1"),
+            appbar=myctls.MyAppBar(page=page, title="YYdlp-GUI v0.1"),
             controls=[
                 ft.Text(value="hoge", text_align=ft.TextAlign.CENTER),
                 ft.TextField(),
-                ft.Image(src="../resources/settings_FILL0_wght400_GRAD0_opsz48.png",
-                           color=ft.colors.WHITE)
+                ft.Image(
+                    src="../resources/settings_FILL0_wght400_GRAD0_opsz48.png",
+                    color=ft.colors.WHITE,
+                ),
             ],
         )
 
@@ -74,7 +76,7 @@ class SettingsView:
         self.view = ft.View(
             route="/settings",
             appbar=ft.AppBar(
-                title=ft.Text("YYytdlp_gui v0.1 Settings"),
+                title=ft.Text("YYdlp-GUI v0.1 Settings"),
                 bgcolor=ft.colors.ORANGE_700,
             ),
             controls=[
@@ -88,7 +90,9 @@ class SettingsView:
     def on_changed_page(self) -> None:
         dialog = ft.AlertDialog(
             title=ft.Row(
-                controls=[ft.Text("Settings is now developping.You can't available now")],
+                controls=[
+                    ft.Text("Settings is now developping.You can't available now")
+                ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER,
             ),
