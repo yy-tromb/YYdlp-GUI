@@ -14,12 +14,23 @@ class MyAppBar(ft.UserControl):
         self.title = title
 
     def build(self):
-        return ft.Row(
-            controls=[
-                ft.Text(value=self.title),
-                ft.ElevatedButton(
-                    text="Settings", on_click=lambda _: self.page.go("/settings")
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
+        return ft.Container(
+            ft.Row(
+                controls=[
+                    ft.Text(value=self.title,
+                            color=ft.colors.WHITE,
+                            size=30),
+                    ft.ElevatedButton(
+                        text="Settings",
+                        on_click=lambda _: self.page.go("/settings"),
+                        color=ft.colors.WHITE,
+                        bgcolor=ft.colors.BLUE_900,
+                    ),
+                    ft.Image(src=f"../resources/settings_FILL0_wght400_GRAD0_opsz48.svg",
+                             width=50,height=50,
+                             fit=ft.ImageFit.CONTAIN,)
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.MainAxisAlignment.CENTER,
+            ),bgcolor=ft.colors.ORANGE_700,
         )
