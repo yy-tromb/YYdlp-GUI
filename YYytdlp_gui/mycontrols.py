@@ -26,7 +26,7 @@ class MyAppBar(ft.UserControl):
                         color=ft.colors.WHITE,
                         bgcolor=ft.colors.BLUE_900,
                     ),
-                    ft.Image(src=f"../resources/settings_FILL0_wght400_GRAD0_opsz48.svg",
+                    ft.Image(src="../resources/settings_FILL0_wght400_GRAD0_opsz48.svg",
                              width=50,height=50,
                              fit=ft.ImageFit.CONTAIN,)
                 ],
