@@ -11,8 +11,6 @@ class View:
         self.views = ["main", "setting"]
         ft.app(target=self.main)
 
-    def run(self) -> None:
-        ft.app(target=self.main)
 
     def main(self, page: ft.Page) -> None:
         self.page = page
