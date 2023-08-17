@@ -17,20 +17,18 @@ class MyAppBar(ft.UserControl):
         return ft.Container(
             ft.Row(
                 controls=[
-                    ft.Text(value=self.title,
-                            color=ft.colors.WHITE,
-                            size=30),
-                    ft.ElevatedButton(
-                        text="Settings",
+                    ft.Text(value=self.title, color=ft.colors.WHITE, size=30),
+                    ft.IconButton(
+                        ft.icons.SETTINGS,
                         on_click=lambda _: self.page.go("/settings"),
-                        color=ft.colors.WHITE,
+                        icon_color=ft.colors.WHITE,
                         bgcolor=ft.colors.BLUE_900,
                     ),
-                    ft.Image(src="../resources/settings_FILL0_wght400_GRAD0_opsz48.svg",
-                             width=50,height=50,
-                             fit=ft.ImageFit.CONTAIN,)
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER,
-            ),bgcolor=ft.colors.ORANGE_700,
+                expand=1,
+                spacing=""
+            ),
+            bgcolor=ft.colors.ORANGE_700,
         )
