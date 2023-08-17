@@ -10,8 +10,8 @@ class MyAppBar(ft.UserControl):
 
     def __init__(self, page: ft.Page, title: str):
         super().__init__()
-        self.page = page
-        self.title = title
+        self.page: ft.Page = page
+        self.title: str = title
 
     def build(self):
         return ft.Container(
@@ -28,7 +28,6 @@ class MyAppBar(ft.UserControl):
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER,
                 expand=1,
-                spacing=""
             ),
             bgcolor=ft.colors.ORANGE_700,
         )

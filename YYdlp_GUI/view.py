@@ -15,8 +15,8 @@ class MyView(metaclass=abc.ABCMeta):
 
 class MainView(MyView):
     def __init__(self, page: ft.Page) -> None:
-        self.page = page  # for page button
-        self.view = ft.View(
+        self.page: ft.Page = page  # for page button
+        self.view: ft.View = ft.View(
             route="/main",
             appbar=MyAppBar(page=page, title="YYdlp-GUI v0.1"),
             controls=[
@@ -32,8 +32,8 @@ class MainView(MyView):
 
 class SettingsView(MyView):
     def __init__(self, page: ft.Page) -> None:
-        self.page = page  # for page button
-        self.view = ft.View(
+        self.page: ft.Page = page  # for page button
+        self.view: ft.View = ft.View(
             route="/settings",
             appbar=ft.AppBar(
                 title=ft.Text("YYdlp-GUI v0.1 Settings"),
@@ -48,7 +48,7 @@ class SettingsView(MyView):
         )
 
     def on_changed_page(self) -> None:
-        dialog = ft.AlertDialog(
+        dialog: ft.AlertDialog= ft.AlertDialog(
             title=ft.Row(
                 controls=[
                     ft.Text("Settings is now developping.You can't available now")
@@ -78,14 +78,14 @@ class View:
         mainView: "MyView" = MainView,
         settingsView: "MyView" = SettingsView,
     ) -> None:
-        self.page = page
-        page.title = "YYdlp-GUI v0.1"
+        self.page: ft.Page = page
+        page.title: str = "YYdlp-GUI v0.1"
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         page.horizontal_alignment = ft.MainAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
         # ↑ code for not multiview (memo)
-        self.mainView = mainView(page)
-        self.settingsView = settingsView(page)
+        self.mainView: "MyView" = mainView(page)
+        self.settingsView: "MyView" = settingsView(page)
 
         page.on_route_change = self.__on_route_change
         page.on_view_pop = self.__on_pop_view
