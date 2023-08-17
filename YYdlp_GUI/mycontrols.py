@@ -1,5 +1,5 @@
 import flet as ft
-
+from typing import Callable
 
 class MyAppBar(ft.UserControl):
     """MyAppBar
@@ -8,9 +8,9 @@ class MyAppBar(ft.UserControl):
     Args:None
     """
 
-    def __init__(self, page: ft.Page, title: str):
+    def __init__(self,title: str,on_settings_button_click: Callable):
         super().__init__()
-        self.page: ft.Page = page
+        self.on_settings_button_click: Callable=on_settings_button_click
         self.title: str = title
 
     def build(self):
@@ -20,7 +20,7 @@ class MyAppBar(ft.UserControl):
                     ft.Text(value=self.title, color=ft.colors.WHITE, size=30),
                     ft.IconButton(
                         ft.icons.SETTINGS,
-                        on_click=lambda _: self.page.go("/settings"),
+                        on_click=self.on_settings_button_click,
                         icon_color=ft.colors.WHITE,
                         bgcolor=ft.colors.BLUE_900,
                     ),

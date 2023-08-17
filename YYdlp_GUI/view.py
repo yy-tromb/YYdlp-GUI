@@ -1,7 +1,7 @@
 import flet as ft
 from mycontrols import MyAppBar
 import abc
-from wrap_yt_dlp import MediaInfo,MediaDownLoad
+from wrap_yt_dlp import MediaInfo, MediaDownLoad
 
 
 def __init__():
@@ -19,7 +19,10 @@ class MainView(MyView):
         self.page: ft.Page = page  # for page button
         self.view: ft.View = ft.View(
             route="/main",
-            appbar=MyAppBar(page=page, title="YYdlp-GUI v0.1"),
+            appbar=MyAppBar(
+                title="YYdlp-GUI v0.1",
+                on_settings_button_click=lambda _: page.go("/settings"),
+            ),
             controls=[
                 ft.Text(value="hoge", text_align=ft.TextAlign.CENTER),
                 ft.TextField(),
@@ -49,14 +52,14 @@ class SettingsView(MyView):
         )
 
     def on_changed_page(self) -> None:
-        dialog: ft.AlertDialog= ft.AlertDialog(
+        dialog: ft.AlertDialog = ft.AlertDialog(
             title=ft.Row(
                 controls=[
                     ft.Text("Settings is now developping.You can't available now")
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER,
-                expand=1
+                expand=1,
             ),
             open=True
             # on_dismiss=lambda _:print("dissmissed")
@@ -71,7 +74,6 @@ class View:
 
     def run(self) -> None:
         ft.app(target=self.main)
-
 
     def main(
         self,
