@@ -68,8 +68,6 @@ class View:
     def __init__(self) -> None:
         self.views = ["main", "setting"]
 
-    def run(self) -> None:
-        ft.app(target=self.main)
 
     def main(
         self,
