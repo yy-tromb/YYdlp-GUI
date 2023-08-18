@@ -3,20 +3,20 @@ from mycontrols import MyAppBar
 import abc
 from wrap_yt_dlp import MediaInfo, MediaDownLoad
 
-
 def __init__():
     pass
 
 
-class MyView(metaclass=abc.ABCMeta):
+class IMyView(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, page: ft.Page) -> None:
         raise NotImplementedError()
 
 
-class MainView(MyView):
+class MainView(IMyView):
     def __init__(self, page: ft.Page) -> None:
         self.page: ft.Page = page  # for page button
+        self.title="YYdlp-GUI v0.1"
         self.view: ft.View = ft.View(
             route="/main",
             appbar=MyAppBar(
@@ -34,7 +34,7 @@ class MainView(MyView):
         )
 
 
-class SettingsView(MyView):
+class SettingsView(IMyView):
     def __init__(self, page: ft.Page) -> None:
         self.page: ft.Page = page  # for page button
         self.view: ft.View = ft.View(
@@ -78,17 +78,17 @@ class View:
     def main(
         self,
         page: ft.Page,
-        mainView: "MyView" = MainView,
-        settingsView: "MyView" = SettingsView,
+        mainView: type[IMyView] = MainView,
+        settingsView: type[IMyView] = SettingsView,
     ) -> None:
         self.page: ft.Page = page
-        page.title: str = "YYdlp-GUI v0.1"
+        page.title= "YYdlp-GUI v0.1"
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         page.horizontal_alignment = ft.MainAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
         # ↑ code for not multiview (memo)
-        self.mainView: "MyView" = mainView(page)
-        self.settingsView: "MyView" = settingsView(page)
+        self.mainView: IMyView = mainView(page)
+        self.settingsView: IMyView = settingsView(page)
 
         page.on_route_change = self.__on_route_change
         page.on_view_pop = self.__on_pop_view

@@ -1,5 +1,5 @@
 from view import View
 
 if __name__ == "__main__":
-    view: "View"=View()
+    view=View()
     view.run()

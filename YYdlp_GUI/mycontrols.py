@@ -26,7 +26,7 @@ class MyAppBar(ft.UserControl):
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
-                vertical_alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 expand=1,
             ),
             bgcolor=ft.colors.ORANGE_700,
