@@ -1,7 +1,7 @@
 import flet as ft
 from mycontrols import MyAppBar
 import abc
-from wrap_yt_dlp import MediaInfo, MediaDownLoad
+from wrap_ytdlp import MediaInfo, MediaDownLoad
 
 def __init__():
     pass
