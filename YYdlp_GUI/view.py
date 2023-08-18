@@ -11,6 +11,7 @@ class IMyView(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, page: ft.Page) -> None:
         raise NotImplementedError()
+    view: ft.View
 
 
 class MainView(IMyView):
@@ -58,7 +59,7 @@ class SettingsView(IMyView):
                     ft.Text("Settings is now developping.You can't available now")
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
-                vertical_alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 expand=1,
             ),
             open=True
@@ -84,7 +85,7 @@ class View:
         self.page: ft.Page = page
         page.title= "YYdlp-GUI v0.1"
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
-        page.horizontal_alignment = ft.MainAxisAlignment.CENTER
+        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
         # ↑ code for not multiview (memo)
         self.mainView: IMyView = mainView(page)
