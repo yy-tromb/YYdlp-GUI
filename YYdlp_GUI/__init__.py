@@ -1,1 +1,5 @@
-from YYdlp_GUI import YYdlp_GUI,view,mycontrols,state,wrap_ytdlp
+from . import view,mycontrols,state,wrap_ytdlp
+
+def main():
+    v=view.View()
+    v.run()

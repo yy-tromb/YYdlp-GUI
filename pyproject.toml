@@ -5,7 +5,7 @@ description = "my yt-dlp GUI wrapper"
 authors = ["yy-tromb <107352731+yy-tromb@users.noreply.github.com>"]
 license = "MIT License"
 readme = "README.md"
-packages = [{include = "yyytdlp_gui"}]
+packages = [{include = "YYdlp_GUI"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -20,6 +20,10 @@ black = "^23.7.0"
 ruff = "^0.0.284"
 pytest-mock = "^3.11.1"
 mypy = "^1.5.1"
+
+[tool.ruff]
+select = ["F","E","W","I","B","PL","RUF","UP"]
+unfixable = ["F401", "F841"]
 
 [build-system]
 requires = ["poetry-core"]

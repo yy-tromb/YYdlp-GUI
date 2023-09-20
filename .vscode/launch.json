@@ -13,7 +13,7 @@
             "name": "run YYdlp_GUI.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/YYdlp_gui/YYdlp_GUI.py",
+            "program": "${workspaceFolder}/YYdlp_GUI/__main__.py",
             "console": "integratedTerminal",
             "justMyCode": false
         },

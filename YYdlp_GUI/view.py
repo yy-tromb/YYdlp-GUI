@@ -1,7 +1,8 @@
 import flet as ft
-from mycontrols import MyAppBar
+from .mycontrols import MyAppBar
 import abc
-from wrap_ytdlp import MediaInfo, MediaDownLoad
+from .wrap_ytdlp import MediaInfo, MediaDownLoad
+
 
 def __init__():
     pass
@@ -11,13 +12,14 @@ class IMyView(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, page: ft.Page) -> None:
         raise NotImplementedError()
+
     view: ft.View
 
 
 class MainView(IMyView):
     def __init__(self, page: ft.Page) -> None:
         self.page: ft.Page = page  # for page button
-        self.title="YYdlp-GUI v0.1"
+        self.title = "YYdlp-GUI v0.1"
         self.view: ft.View = ft.View(
             route="/main",
             appbar=MyAppBar(
@@ -84,7 +86,7 @@ class View:
         settingsView: type[IMyView] = SettingsView,
     ) -> None:
         self.page: ft.Page = page
-        page.title= "YYdlp-GUI v0.1"
+        page.title = "YYdlp-GUI v0.1"
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
