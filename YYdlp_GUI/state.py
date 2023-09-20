@@ -86,3 +86,4 @@ Thanks to ForestMountain1234
         self.__observers.append(observer)
         # --original comment--
         # 変更時に呼び出す為のリストに登録
+
