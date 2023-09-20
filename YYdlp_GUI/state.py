@@ -1,73 +1,87 @@
-from typing import TypeVar, Generic, Union, Callable
+from typing import TypeVar, Generic, Callable, Union
+import abc
 
-T = TypeVar('T')
-
-
-TState = IState | State | ReactiveState | StateGroup
-
-
-class State(Generic[T],IState): 
-"""
-When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.  
-
-This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.  
-Thanks to ForestMountain1234  
-[ForestMountain1234's GitHub](https://github.com/ForestMountain1234)  
-[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)
-"""
-
-     def __init__(self, value: T | None = None): 
-         self.__value = value 
-         self.__observers: list[Callable[T | None]] = []
-  
-     def get(self): 
-         return self.__value 
-  
-     def set(self, new_value: T): 
-         if self.__value != new_value: 
-             self.__value = new_value 
-             self._update()
-
-    def _update():
-      for observer in self.__observers: 
-                 observer(self.__value) 
-  
-     def bind(self, observer): 
-         self.__observers.append(observer)
+T = TypeVar("T")
+T_STATE = TypeVar("T_STATE")
+T_REACTIVESTATE = TypeVar("T_REACTIVESTATE")
 
 
+class IState(Generic[T], metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def get(self) -> T | None:
+        raise NotImplementedError()
 
-class ReactiveState(Generic[T],IState):
+    @abc.abstractmethod
+    def _update(self):
+        raise NotImplementedError()
 
-"""
-When reliance states( State or ReactiveState ) or reliance state group is updated, functions( setted by .bind() ) is executed.  
+    @abc.abstractmethod
+    def bind(self, observer: Callable):
+        raise NotImplementedError()
 
-This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.  
-Thanks to ForestMountain1234  
-[ForestMountain1234's GitHub](https://github.com/ForestMountain1234)  
-[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)
-"""
+
+class State(Generic[T_STATE], IState):
+    """
+    When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.
+
+    This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
+    Thanks to ForestMountain1234
+    [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
+    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501,W291
+
+    def __init__(self, value: T_STATE | None = None) -> None:
+        self.__value = value
+        self.__observers: list[Callable[[T_STATE | None], None]] = []
+
+    def get(self) -> T_STATE | None:
+        return self.__value
+
+    def set(self, new_value: T_STATE):
+        if self.__value != new_value:
+            self.__value = new_value
+            self._update()
+
+    def _update(self):
+        for observer in self.__observers:
+            observer(self.__value)
+
+    def bind(self, observer: Callable):
+        self.__observers.append(observer)
+
+
+class ReactiveState(Generic[T_REACTIVESTATE], IState):
+
+    """
+    When reliance states( State or ReactiveState ) or reliance state group is updated, functions( setted by .bind() ) is executed.
+
+    This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
+    Thanks to ForestMountain1234
+    [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
+    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501,W291
+
     # --original comment--
     # formula: State等を用いて最終的にT型の値を返す関数。
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: list[TState]):
-# reliance_group is being designed and prepared
+    def __init__(
+        self, formula: Callable[[], T_REACTIVESTATE], reliance_states: list[IState]
+    ):
+        # reliance_group is being designed and prepared
 
         self.__value = State(formula())
         # --original comment--
         # 通常のStateクラスとは違い、valueがStateである
 
         self.__formula = formula
-        self.__observers: list[Callable[T]] = []
+        self.__observers: list[Callable[[T_REACTIVESTATE | None], None]] = []
 
         for state in reliance_states:
             # --original comment--
             # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind(lambda : self._update())
+            state.bind(lambda: self._update())
 
-    def get(self):
+    def get(self) -> T_REACTIVESTATE | None:
         return self.__value.get()
 
     def _update(self):
@@ -78,12 +92,14 @@ Thanks to ForestMountain1234
 
         if old_value != self.__value.get():
             for observer in self.__observers:
-              observer(self.__value.get())
-              # --original comment--
-              # 変更時に各observerに通知する
+                observer(self.__value.get())
+                # --original comment--
+                # 変更時に各observerに通知する
 
     def bind(self, observer):
         self.__observers.append(observer)
         # --original comment--
         # 変更時に呼び出す為のリストに登録
 
+
+TState = IState | State | ReactiveState  # StateGroup
