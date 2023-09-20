@@ -18,6 +18,7 @@ class IMyView(metaclass=abc.ABCMeta):
 
 class MainView(IMyView):
     def __init__(self, page: ft.Page) -> None:
+        print(__package__)
         self.page: ft.Page = page  # for page button
         self.title = "YYdlp-GUI v0.1"
         self.view: ft.View = ft.View(
@@ -29,10 +30,6 @@ class MainView(IMyView):
             controls=[
                 ft.Text(value="hoge", text_align=ft.TextAlign.CENTER),
                 ft.TextField(),
-                ft.Image(
-                    src="../resources/settings_FILL0_wght400_GRAD0_opsz48.png",
-                    color=ft.colors.WHITE,
-                ),
             ],
         )
 
