@@ -70,17 +70,21 @@ class SettingsView(IMyView):
 
 
 class View:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        mainView: type[IMyView] = MainView,
+        settingsView: type[IMyView] = SettingsView,
+    ) -> None:
         self.views = ["main", "setting"]
+        self.mainViewClass=mainView
+        self.settingsViewClass=settingsView
 
     def run(self) -> None:
         ft.app(target=self.main)
 
     def main(
         self,
-        page: ft.Page,
-        mainView: type[IMyView] = MainView,
-        settingsView: type[IMyView] = SettingsView,
+        page: ft.Page
     ) -> None:
         self.page: ft.Page = page
         page.title = "YYdlp-GUI v0.1"
@@ -88,8 +92,8 @@ class View:
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         # page.add(ft.Text(value="hoge",text_align=ft.TextAlign.CENTER))
         # ↑ code for not multiview (memo)
-        self.mainView: IMyView = mainView(page)
-        self.settingsView: IMyView = settingsView(page)
+        self.mainView: IMyView = self.mainViewClass(page)
+        self.settingsView: IMyView = self.settingsViewClass(page)
 
         page.on_route_change = self.__on_route_change
         page.on_view_pop = self.__on_pop_view
