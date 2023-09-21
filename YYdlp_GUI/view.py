@@ -18,7 +18,6 @@ class IMyView(metaclass=abc.ABCMeta):
 
 class MainView(IMyView):
     def __init__(self, page: ft.Page) -> None:
-        print(__package__)
         self.page: ft.Page = page  # for page button
         self.title = "YYdlp-GUI v0.1"
         self.view: ft.View = ft.View(
