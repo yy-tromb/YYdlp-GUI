@@ -18,6 +18,10 @@ release:
 	poetry shell
 	$(PYINSTALLER) $(ENTRYPOINT) $(OUTPUTTYPE) $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)
 
+onefile:
+	poetry shell
+	$(PYINSTALLER) $(ENTRYPOINT) --onefile $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)_onefile
+
 
 clean:
 	$(RM) $(NAME).spec
