@@ -1,4 +1,4 @@
-PYINSTALLER = pyinstaller
+PYINSTALLER = python -m PyInstaller
 ENTRYPOINT = YYdlp_GUI/__main__.py
 OUTPUTTYPE = --onedir
 OPTIONS = --noconfirm
