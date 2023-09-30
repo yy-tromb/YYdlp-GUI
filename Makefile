@@ -8,19 +8,16 @@ DEBUGOPTIONS = --debug all
 NAME = YYdlp-GUI
 
 RM = del
-RD = rd
+RD = rd /s /q
 
 debug:
-	poetry shell
-	$(PYINSTALLER) $(ENTRYPOINT) $(OUTPUTTYPE) $(OPTIONS) $(DEBUGOPTIONS) -n $(NAME)
+	poetry -v run $(PYINSTALLER) $(ENTRYPOINT) $(OUTPUTTYPE) $(OPTIONS) $(DEBUGOPTIONS) -n $(NAME)
 
 release:
-	poetry shell
-	$(PYINSTALLER) $(ENTRYPOINT) $(OUTPUTTYPE) $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)
+	poetry -v run $(PYINSTALLER) $(ENTRYPOINT) $(OUTPUTTYPE) $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)
 
 onefile:
-	poetry shell
-	$(PYINSTALLER) $(ENTRYPOINT) --onefile $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)_onefile
+	poetry -v run $(PYINSTALLER) $(ENTRYPOINT) --onefile $(OPTIONS) $(RELEASEOPTIONS) -n $(NAME)_onefile
 
 
 clean:
