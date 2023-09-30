@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "YYdlp_GUI"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10,<3.13"
 flet = "^0.10.3"
 yt-dlp = "^2023.9.24"
 asyncio = "^3.4.3"
@@ -20,6 +20,7 @@ black = "^23.7.0"
 ruff = "^0.0.284"
 pytest-mock = "^3.11.1"
 mypy = "^1.5.1"
+pyinstaller = "^6.0.0"
 
 [tool.ruff]
 select = ["F","E","W","I","B","PL","RUF","UP"]
