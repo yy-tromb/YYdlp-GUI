@@ -1,19 +1,20 @@
-from typing import TypeVar, Generic, Callable, List
-import abc
+from typing import TypeVar, Generic, Callable, List, Dict, LiteralString
+from abc import abstractmethod,ABCMeta
+import dataclasses
 
 T = TypeVar("T")
 
 
-class IState(Generic[T], metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class IState(Generic[T], metaclass=ABCMeta):
+    @abstractmethod
     def get(self) -> T | None:
         raise NotImplementedError()
 
-    @abc.abstractmethod
+    @abstractmethod
     def _update(self):
         raise NotImplementedError()
 
-    @abc.abstractmethod
+    @abstractmethod
     def bind(self, observers: List[Callable[[T | None], None]]):
         raise NotImplementedError()
 
@@ -97,8 +98,21 @@ class ReactiveState(IState, Generic[T]):
         # --original comment--
         # 変更時に呼び出す為のリストに登録
 
+@dataclasses.dataclass
+class StoreKey:
+    key: str
+    kind: Literal["State","ReactiveState"]
 
-class StateGroup(IState, Generic[T]):
+
+class Store:
+    def __init__(self) -> None:
+        self.__keys: List[str]=[]
+        self.__states: Dict[str, State | ReactiveState]= {}
+
+    pass
+
+
+class SubStore(Store, Generic[T]):
     def __init__(self) -> None:
         pass
 
@@ -110,13 +124,3 @@ class StateGroup(IState, Generic[T]):
 
     def bind(self, observers: List[Callable[[T | None], None]], keys: List[str]):  # type: ignore # noqa E501
         pass
-
-
-TState = IState | State | ReactiveState | StateGroup
-
-
-class Store:
-    def __init__(self) -> None:
-        pass
-
-    pass
