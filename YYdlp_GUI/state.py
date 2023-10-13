@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Callable, List, Dict, LiteralString
+from typing import TypeVar, Generic, Callable, List, Dict, Literal,LiteralString
 from abc import abstractmethod,ABCMeta
 import dataclasses
 
@@ -102,6 +102,7 @@ class ReactiveState(IState, Generic[T]):
 class StoreKey:
     key: str
     kind: Literal["State","ReactiveState"]
+    state: State
 
 
 class Store:
