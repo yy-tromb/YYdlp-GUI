@@ -102,7 +102,7 @@ class ReactiveState(IState, Generic[T]):
 class StoreKey:
     key: str
     kind: Literal["State","ReactiveState"]
-    state: State
+    state: State | ReactiveState
 
 
 class Store:
@@ -111,4 +111,5 @@ class Store:
         self.__states: Dict[str, State | ReactiveState]= {}
         self.__top_level: bool = top_level
 
-    pass
+    def add_key(self):
+        pass
