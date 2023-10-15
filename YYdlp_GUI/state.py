@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Callable, List, Dict, LiteralString
+from typing import TypeVar, Generic, Callable, List, Dict, Literal
 from abc import abstractmethod,ABCMeta
 import dataclasses
 
@@ -105,22 +105,9 @@ class StoreKey:
 
 
 class Store:
-    def __init__(self) -> None:
+    def __init__(self,top_level: boolean = False) -> None:
         self.__keys: List[str]=[]
         self.__states: Dict[str, State | ReactiveState]= {}
+        self.__top_level: boolean = top_level
 
     pass
-
-
-class SubStore(Store, Generic[T]):
-    def __init__(self) -> None:
-        pass
-
-    def get(self) -> T | None:
-        pass
-
-    def _update(self):
-        pass
-
-    def bind(self, observers: List[Callable[[T | None], None]], keys: List[str]):  # type: ignore # noqa E501
-        pass
