@@ -109,7 +109,7 @@ class Store:
     def __init__(self,top_level: bool = False) -> None:
         self.__keys: List[str]=[]
         self.__states: Dict[str, State | ReactiveState]= {}
-        self.__top_level: bool = top_level
+        #self.__top_level: bool = top_level
 
     def add_key(self):
         pass
