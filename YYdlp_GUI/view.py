@@ -1,7 +1,7 @@
 import flet as ft
 from .mycontrols import MyAppBar
 import abc
-from .wrap_ytdlp import MediaInfo, MediaDownLoad
+from .yt_dlp_wrapper import MediaInfo, MediaDownLoad
 
 
 def __init__():
@@ -79,7 +79,7 @@ class View:
         self.settingsViewClass=settingsView
 
     def run(self) -> None:
-        ft.app(target=self.main)
+        ft.app(target=self.main,use_color_emoji=True,assets_dir="assets")
 
     def main(
         self,
