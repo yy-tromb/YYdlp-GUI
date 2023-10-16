@@ -126,4 +126,11 @@ class Store:
     def bind(self):
         pass
 
-    
+    def unbind(self):
+        pass
+
+    def set(self):
+        pass
+
+    def get_store(self):
+        pass
