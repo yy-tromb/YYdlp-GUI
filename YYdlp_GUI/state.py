@@ -113,3 +113,17 @@ class Store:
 
     def add_key(self):
         pass
+
+    def add_store(self):
+        pass
+
+    def remove_key(self):
+        pass
+
+    def remove_store(self):
+        pass
+
+    def bind(self):
+        pass
+
+    
