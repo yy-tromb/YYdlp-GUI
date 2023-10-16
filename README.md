@@ -9,3 +9,5 @@ I use [this article: Python(Flet)でリアクティブなUIを作る方法を考
 Thanks to ForestMountain1234  
 [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)  
 [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)
+
+## Copyright (c) 2023 yy-tromb
