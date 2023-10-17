@@ -111,13 +111,16 @@ class Store:
         self.__states: Dict[str, State | ReactiveState]= {}
         #self.__top_level: bool = top_level
 
-    def add_key(self):
+    def add_state(self):
+        pass
+
+    def add_reactive(self):
         pass
 
     def add_store(self):
         pass
 
-    def remove_key(self):
+    def remove(self):
         pass
 
     def remove_store(self):
