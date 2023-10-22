@@ -48,6 +48,10 @@ class State(IState, Generic[T]):
         self.__observers.extend(observers)
 
 
+
+TState = IState | State
+
+
 class ReactiveState(IState, Generic[T]):
 
     """
@@ -63,7 +67,7 @@ class ReactiveState(IState, Generic[T]):
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: list[IState]):
+    def __init__(self, formula: Callable[[], T], reliance_states: list[TState]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -98,11 +102,15 @@ class ReactiveState(IState, Generic[T]):
         # --original comment--
         # 変更時に呼び出す為のリストに登録
 
+
 @dataclasses.dataclass
 class StoreKey:
     key: str
     kind: Literal["State","ReactiveState"]
     state: State | ReactiveState
+
+
+TState = IState | State | ReactiveState
 
 
 class Store:
@@ -137,3 +145,6 @@ class Store:
 
     def get_store(self):
         pass
+
+
+TState = IState | State | ReactiveState | Store
