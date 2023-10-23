@@ -1,5 +1,5 @@
-from typing import TypeVar, Generic, Callable, List, Dict, Literal
-from abc import abstractmethod,ABCMeta
+from typing import TypeVar, Generic, Callable, Literal
+from abc import abstractmethod, ABCMeta
 import dataclasses
 
 T = TypeVar("T")
@@ -15,7 +15,7 @@ class IState(Generic[T], metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def bind(self, observers: List[Callable[[T | None], None]]):
+    def bind(self, observers: list[Callable[[T | None], None]]):
         raise NotImplementedError()
 
 
@@ -30,7 +30,7 @@ class State(IState, Generic[T]):
 
     def __init__(self, value: T | None = None) -> None:
         self.__value = value
-        self.__observers: List[Callable[[T | None], None]] = []
+        self.__observers: list[Callable[[T | None], None]] = []
 
     def get(self) -> T | None:
         return self.__value
@@ -44,12 +44,8 @@ class State(IState, Generic[T]):
         for observer in self.__observers:
             observer(self.__value)
 
-    def bind(self, observers: List[Callable[[T | None], None]]):
+    def bind(self, observers: list[Callable[[T | None], None]]):
         self.__observers.extend(observers)
-
-
-
-TState = IState | State
 
 
 class ReactiveState(IState, Generic[T]):
@@ -67,7 +63,7 @@ class ReactiveState(IState, Generic[T]):
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: list[TState]):
+    def __init__(self, formula: Callable[[], T], reliance_states: list[IState]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -97,7 +93,7 @@ class ReactiveState(IState, Generic[T]):
                 # --original comment--
                 # 変更時に各observerに通知する
 
-    def bind(self, observers: List[Callable[[T | None], None]]):
+    def bind(self, observers: list[Callable[[T | None], None]]):
         self.__observers.extend(observers)
         # --original comment--
         # 変更時に呼び出す為のリストに登録
@@ -106,18 +102,28 @@ class ReactiveState(IState, Generic[T]):
 @dataclasses.dataclass
 class StoreKey:
     key: str
-    kind: Literal["State","ReactiveState"]
+    kind: Literal["State", "ReactiveState"]
     state: State | ReactiveState
 
 
-TState = IState | State | ReactiveState
+class StateRef(Generic[T]):
+    def __init__(
+        self,
+        store,  # :Store
+        key: str,
+    ) -> None:
+        self.__store: Store = store
+        self.__key: str = key
+
+    def bind(self) -> None:
+        pass
 
 
 class Store:
-    def __init__(self,top_level: bool = False) -> None:
-        self.__keys: List[str]=[]
-        self.__states: Dict[str, State | ReactiveState]= {}
-        #self.__top_level: bool = top_level
+    def __init__(self, top_level: bool = False) -> None:
+        self.__keys: list[str] = []
+        self.__states: dict[str, State | ReactiveState] = {}
+        # self.__top_level: bool = top_level
 
     def add_state(self):
         pass
@@ -147,4 +153,4 @@ class Store:
         pass
 
 
-TState = IState | State | ReactiveState | Store
+TState = TypeVar("TState", IState, State, ReactiveState, StateRef)
