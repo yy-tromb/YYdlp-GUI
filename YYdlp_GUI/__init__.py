@@ -1,4 +1,4 @@
-from . import view,mycontrols,state,wrap_ytdlp
+from . import view,mycontrols,state,yt_dlp_wrapper
 
 def main():
     v=view.View()
