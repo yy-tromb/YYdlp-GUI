@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Callable, Literal
+from typing import TypeVar, Generic, Callable, Literal , TypeAlias
 from abc import abstractmethod, ABCMeta
 import dataclass from dataclasses
 
@@ -159,4 +159,4 @@ class Store:
         pass
 
 
-TState = TypeVar("TState", IState, State, ReactiveState, StateRef)
+TState: TypeAlias = IState | State | ReactiveState
