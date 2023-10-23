@@ -106,7 +106,7 @@ class StoreKey:
     state: State | ReactiveState
 
 
-class StateRef(Generic[T]):
+class StateRef(IState,Generic[T]):
     def __init__(
         self,
         store,  # :Store
@@ -115,7 +115,13 @@ class StateRef(Generic[T]):
         self.__store: Store = store
         self.__key: str = key
 
-    def bind(self) -> None:
+    def get(self) -> None:
+        pass
+
+    def bind(self,observers: list[Callable[[T | None], None]]) -> None:
+        pass
+
+    def _update(self) -> None:
         pass
 
 
