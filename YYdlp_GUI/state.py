@@ -1,6 +1,6 @@
 from typing import TypeVar, Generic, Callable, Literal
 from abc import abstractmethod, ABCMeta
-import dataclasses
+import dataclass from dataclasses
 
 T = TypeVar("T")
 
@@ -99,7 +99,7 @@ class ReactiveState(IState, Generic[T]):
         # 変更時に呼び出す為のリストに登録
 
 
-@dataclasses.dataclass
+@dataclass
 class StoreKey:
     key: str
     kind: Literal["State", "ReactiveState"]
