@@ -126,10 +126,9 @@ class StateRef(IState,Generic[T]):
 
 
 class Store:
-    def __init__(self, top_level: bool = False) -> None:
+    def __init__(self) -> None:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
-        # self.__top_level: bool = top_level
 
     def add_state(self):
         pass
