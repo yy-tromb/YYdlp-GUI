@@ -1,6 +1,6 @@
-from typing import TypeVar, Generic, Callable, Literal
+from typing import TypeVar, Generic, Callable, Literal , TypeAlias
 from abc import abstractmethod, ABCMeta
-import dataclasses
+import dataclass from dataclasses
 
 T = TypeVar("T")
 
@@ -99,7 +99,7 @@ class ReactiveState(IState, Generic[T]):
         # 変更時に呼び出す為のリストに登録
 
 
-@dataclasses.dataclass
+@dataclass
 class StoreKey:
     key: str
     kind: Literal["State", "ReactiveState"]
@@ -126,10 +126,9 @@ class StateRef(IState,Generic[T]):
 
 
 class Store:
-    def __init__(self, top_level: bool = False) -> None:
+    def __init__(self) -> None:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
-        # self.__top_level: bool = top_level
 
     def add_state(self):
         pass
@@ -159,4 +158,4 @@ class Store:
         pass
 
 
-TState = TypeVar("TState", IState, State, ReactiveState, StateRef)
+TState: TypeAlias = IState | State | ReactiveState
