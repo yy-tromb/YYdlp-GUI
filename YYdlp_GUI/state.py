@@ -11,10 +11,6 @@ class IState(Generic[T], metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def _update(self):
-        raise NotImplementedError()
-
-    @abstractmethod
     def bind(self, observers: list[Callable[[T | None], None]]):
         raise NotImplementedError()
 
@@ -38,11 +34,8 @@ class State(IState, Generic[T]):
     def set(self, new_value: T):
         if self.__value != new_value:
             self.__value = new_value
-            self._update()
-
-    def _update(self):
-        for observer in self.__observers:
-            observer(self.__value)
+            for observer in self.__observers:
+                observer(self.__value)
 
     def bind(self, observers: list[Callable[[T | None], None]]):
         self.__observers.extend(observers)
