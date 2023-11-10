@@ -98,24 +98,8 @@ class StoreKey:
     kind: Literal["State", "ReactiveState"]
     state: State | ReactiveState
 
-
-class StateRef(IState,Generic[T]):
-    def __init__(
-        self,
-        store,  # :Store
-        key: str,
-    ) -> None:
-        self.__store: Store = store
-        self.__key: str = key
-
-    def get(self) -> None:
-        pass
-
-    def bind(self,observers: list[Callable[[T | None], None]]) -> None:
-        pass
-
-    def _update(self) -> None:
-        pass
+class IStateRef(IState,Generic[T]):
+    pass
 
 
 class Store:
@@ -150,5 +134,23 @@ class Store:
     def get_store(self):
         pass
 
+
+class StateRef(IState,Generic[T]):
+    def __init__(
+        self,
+        store,  # :Store
+        key: str,
+    ) -> None:
+        self.__store: Store = store
+        self.__key: str = key
+
+    def get(self) -> None:
+        pass
+
+    def bind(self,observers: list[Callable[[T | None], None]]) -> None:
+        pass
+
+    def _update(self) -> None:
+        pass
 
 TState: TypeAlias = IState | State | ReactiveState
