@@ -138,7 +138,7 @@ class Store:
 class StateRef(IState,Generic[T]):
     def __init__(
         self,
-        store,  # :Store
+        store:Store,
         key: str,
     ) -> None:
         self.__store: Store = store
@@ -152,5 +152,15 @@ class StateRef(IState,Generic[T]):
 
     def _update(self) -> None:
         pass
+    
+class ReactiveStateRef(IState,Generic[T]):
+    def __init__(
+        self,
+        store:Store,
+        key : str,
+        ) -> None
+        self.__store: Store = store
+        self.__key: str = key
+
 
 TState: TypeAlias = IState | State | ReactiveState
