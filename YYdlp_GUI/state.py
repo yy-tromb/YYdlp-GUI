@@ -110,15 +110,15 @@ class Store:
     def add(self,
             state_data: tuple[
                 str,
-                Any,
-                list[IState]
+                Any | None
+            ],
+            reactive: tuple[
+                str,
+                tuple[IState,...]
             ]):
         pass
 
-    def add_reactive(self):
-        pass
-
-    def add_store(self):
+    def store(self):
         pass
 
     def remove(self):
