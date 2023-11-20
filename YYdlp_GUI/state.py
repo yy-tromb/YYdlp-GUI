@@ -107,10 +107,12 @@ class Store:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
         
-    def add(self,state_data: tuple[str,Any,tuple[State | ReactiveState,]]):
-        pass
-
-    def add_state(self):
+    def add(self,
+            state_data: tuple[
+                str,
+                Any,
+                list[IState]
+            ]):
         pass
 
     def add_reactive(self):
