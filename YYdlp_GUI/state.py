@@ -99,59 +99,108 @@ class StoreKey:
     state: State | ReactiveState
 
 
+class IStore:
+    pass
+
+
 class IStateRef(IState, Generic[T]):
     pass
 
 
-class Store:
+class IReactiveStateRef(IState, Generic[T]):
+    pass
+
+
+class Store(IStore):
     def __init__(
-            self,
-            state: tuple[tuple[str, Any | None],...],
-            state_keys: tuple[str],
-            reactive: tuple[tuple[str, tuple[IState, ...]]],
-        ) -> None:
+        self,
+        name: str,
+        states: tuple[tuple[str, Any | None], ...] | None = None,
+        state_keys: tuple[str] | None = None,
+        reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
+    ) -> None:
+        # initialise object
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: list[Store] = []
+        # process arguments
+        self.name: str = name
+        if states is not None:
+            self.state(*states)
+        if state_keys is not None:
+            self.add_state(*state_keys)
+        if reactives is not None:
+            self.reactive(*reactives)
 
-    def state(self, *sets: tuple[str, Any | None]):
-        pass
-    
-    def add_state(self,*keys: str):
-        pass
-
-    def reactive(self, *sets: tuple[str, tuple[IState, ...]]):
-        pass
-
-    def store(self, name: str):
-        pass
-
-    def remove(self):
+    def state(self, *sets: tuple[str, Any | None]) -> None:
         pass
 
-    def remove_store(self):
+    def add_state(self, *keys: str) -> None:
+        """add_state
+        This method is equal `Store.state(("key",None),("key2",))`
+        """
         pass
 
-    def bind(self):
+    def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
         pass
 
-    def unbind(self):
+    def store(
+        self,
+        name: str,
+        states: tuple[tuple[str, Any | None], ...] | None,
+        state_keys: tuple[str] | None,
+        reactives: tuple[tuple[str, tuple[IState, ...]]] | None,
+    ) -> IStore:
+        store = Store(name, states, state_keys, reactives)
+        # !!!!!!!!!!!!!!
+        # ToDo
+        # !!!!!!!!!!!!!!
+        return store
+
+    def remove(self) -> None:
         pass
 
-    def set(self):
+    def drop_store(self) -> None:
         pass
 
-    def get_store(self):
+    def bind(self) -> None:
+        pass
+
+    def unbind(self) -> None:
+        pass
+
+    def set(self) -> None:
+        pass
+
+    def get_store(self, name: str) -> IStore:  # type: ignore
+        pass
+
+    def ref(self, key: str) -> IStateRef | IReactiveStateRef:  # type: ignore
+        pass
+
+    def refs(self, *key: str) -> tuple[IStateRef | IReactiveStateRef]:  # type: ignore
+        pass
+
+    def ref_s(self) -> IStateRef:  # type: ignore
+        pass
+
+    def refs_s(self) -> tuple[IStateRef]:  # type: ignore
+        pass
+
+    def ref_r(self) -> IReactiveStateRef:  # type: ignore
+        pass
+
+    def refs_r(self) -> tuple[IReactiveStateRef]:  # type: ignore
         pass
 
 
 class StateRef(IState, Generic[T]):
     def __init__(
         self,
-        store: Store,
+        store: IStore,
         key: str,
     ) -> None:
-        self.__store: Store = store
+        self.__store: IStore = store
         self.__key: str = key
 
     def get(self) -> None:
@@ -167,10 +216,10 @@ class StateRef(IState, Generic[T]):
 class ReactiveStateRef(IState, Generic[T]):
     def __init__(
         self,
-        store: Store,
+        store: IStore,
         key: str,
     ) -> None:
-        self.__store: Store = store
+        self.__store: IStore = store
         self.__key: str = key
 
 
