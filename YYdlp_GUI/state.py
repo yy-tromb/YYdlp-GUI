@@ -136,8 +136,9 @@ class Store(IStore):
         for pair in sets:
             if pair[0] in self.__keys:
                 raise KeyError()
-            else
+            else:
                 self.__keys.add(pair[0])
+                self.__states
 
     def add_state(self, *keys: str) -> None:
         """add_state
