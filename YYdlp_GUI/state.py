@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Callable, Literal , TypeAlias, NamedTuple
+from typing import TypeVar, Generic, Callable, Literal, TypeAlias, Any, Final
 from abc import abstractmethod, ABCMeta
 from dataclasses import dataclass
 
@@ -98,28 +98,23 @@ class StoreKey:
     kind: Literal["State", "ReactiveState"]
     state: State | ReactiveState
 
-class IStateRef(IState,Generic[T]):
-    pass
 
+class IStateRef(IState, Generic[T]):
+    pass
 
 
 class Store:
     def __init__(self) -> None:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
-        
-    def add(self,
-            state_data: tuple[
-                str,
-                Any | None
-            ],
-            reactive: tuple[
-                str,
-                tuple[IState,...]
-            ]):
+
+    def add_state(self, *sets: tuple[str, Any | None]):
         pass
 
-    def store(self,name: str):
+    def add_reactive(self, *sets: tuple[str, tuple[IState, ...]]):
+        pass
+
+    def store(self, name: str):
         pass
 
     def remove(self):
@@ -141,10 +136,10 @@ class Store:
         pass
 
 
-class StateRef(IState,Generic[T]):
+class StateRef(IState, Generic[T]):
     def __init__(
         self,
-        store:Store,
+        store: Store,
         key: str,
     ) -> None:
         self.__store: Store = store
@@ -153,18 +148,19 @@ class StateRef(IState,Generic[T]):
     def get(self) -> None:
         pass
 
-    def bind(self,observers: list[Callable[[T | None], None]]) -> None:
+    def bind(self, observers: list[Callable[[T | None], None]]) -> None:
         pass
 
     def _update(self) -> None:
         pass
 
-class ReactiveStateRef(IState,Generic[T]):
+
+class ReactiveStateRef(IState, Generic[T]):
     def __init__(
         self,
-        store:Store,
-        key : str,
-        ) -> None:
+        store: Store,
+        key: str,
+    ) -> None:
         self.__store: Store = store
         self.__key: str = key
 
