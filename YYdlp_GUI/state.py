@@ -103,6 +103,35 @@ class IStateRef(IState, Generic[T]):
     pass
 
 
+class StateRef(IStateRef, Generic[T]):
+    def __init__(
+        self,
+        store, # :Store
+        key: str,
+    ) -> None:
+        self.__store: Store = store
+        self.__key: str = key
+
+    def get(self) -> None:
+        pass
+
+    def bind(self, observers: list[Callable[[T | None], None]]) -> None:
+        pass
+
+    def _update(self) -> None:
+        pass
+
+
+class ReactiveStateRef(IStateRef, Generic[T]):
+    def __init__(
+        self,
+        store, # : Store
+        key: str,
+    ) -> None:
+        self.__store: Store = store
+        self.__key: str = key
+
+
 class Store:
     def __init__(
         self,
@@ -112,16 +141,16 @@ class Store:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
 
-    def add_state(self,*keys: str):
+    def add_state(self, *keys: str):
         """add_state
-This method is equal `Store.state(("key",None),("key2",None))`
+        This method is equal `Store.state(("key",None),("key2",None))`
         """
         pass
 
-    def state(self, *sets: tuple[str, Any | None]):
+    def state(self, *sets: tuple[str, Any | None]) -> None:
         pass
 
-    def reactive(self, *sets: tuple[str, tuple[IState, ...]]):
+    def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
         pass
 
     def store(
@@ -129,7 +158,7 @@ This method is equal `Store.state(("key",None),("key2",None))`
         name: str,
         states: tuple[tuple[str, Any | None], ...],
         reactives: tuple[tuple[str, tuple[IState, ...]]],
-    ):
+    ) -> None:
         pass
 
     def remove(self):
@@ -150,34 +179,14 @@ This method is equal `Store.state(("key",None),("key2",None))`
     def get_store(self):
         pass
 
-
-class StateRef(IState, Generic[T]):
-    def __init__(
-        self,
-        store: Store,
-        key: str,
-    ) -> None:
-        self.__store: Store = store
-        self.__key: str = key
-
-    def get(self) -> None:
+    def ref(self) -> StateRef | ReactiveStateRef:  # type: ignore
         pass
 
-    def bind(self, observers: list[Callable[[T | None], None]]) -> None:
+    def ref_s(self) -> StateRef:  # type: ignore
         pass
 
-    def _update(self) -> None:
+    def ref_r(self) -> ReactiveStateRef:  # type: ignore
         pass
-
-
-class ReactiveStateRef(IState, Generic[T]):
-    def __init__(
-        self,
-        store: Store,
-        key: str,
-    ) -> None:
-        self.__store: Store = store
-        self.__key: str = key
 
 
 TState: TypeAlias = IState | State | ReactiveState

@@ -7,7 +7,6 @@ from .yt_dlp_wrapper import MediaInfo, MediaDownLoad
 def __init__():
     pass
 
-
 class IMyView(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, page: ft.Page) -> None:
