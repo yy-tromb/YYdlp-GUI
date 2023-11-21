@@ -130,7 +130,6 @@ def __init__(
 self.__store: Store = store
 self.__key: str = key
 
-
 class Store:
 def __init__(
     self,
