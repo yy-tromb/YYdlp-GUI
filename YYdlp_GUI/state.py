@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Callable, Literal , TypeAlias
+from typing import TypeVar, Generic, Callable, Literal , TypeAlias, NamedTuple
 from abc import abstractmethod, ABCMeta
 from dataclasses import dataclass
 
@@ -102,6 +102,7 @@ class IStateRef(IState,Generic[T]):
     pass
 
 
+
 class Store:
     def __init__(self) -> None:
         self.__keys: list[str] = []
@@ -118,7 +119,7 @@ class Store:
             ]):
         pass
 
-    def store(self):
+    def store(self,name: str):
         pass
 
     def remove(self):
