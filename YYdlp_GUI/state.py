@@ -106,7 +106,7 @@ class IStateRef(IState, Generic[T]):
 class StateRef(IStateRef, Generic[T]):
     def __init__(
         self,
-        store, # :Store
+        store,  # :Store
         key: str,
     ) -> None:
         self.__store: Store = store
@@ -125,7 +125,7 @@ class StateRef(IStateRef, Generic[T]):
 class ReactiveStateRef(IStateRef, Generic[T]):
     def __init__(
         self,
-        store, # : Store
+        store,  # : Store
         key: str,
     ) -> None:
         self.__store: Store = store
