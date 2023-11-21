@@ -111,6 +111,7 @@ class Store:
         ) -> None:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
+        self.__stores: list[Store] = []
 
     def add_state(self, *sets: tuple[str, Any | None]):
         pass
