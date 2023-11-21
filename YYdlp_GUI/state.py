@@ -5,188 +5,188 @@ from dataclasses import dataclass
 T = TypeVar("T")
 
 
-class IState(Generic[T], metaclass=ABCMeta):
-    @abstractmethod
-    def get(self) -> T | None:
-        raise NotImplementedError()
+class IState(Generic[T], metaclass = ABCMeta):
+@abstractmethod
+def get(self) -> T | None:
+raise NotImplementedError()
 
-    @abstractmethod
-    def bind(self, observers: list[Callable[[T | None], None]]):
-        raise NotImplementedError()
+@abstractmethod
+def bind(self, observers: list[Callable[[T | None], None]]):
+raise NotImplementedError()
 
 
 class State(IState, Generic[T]):
-    """
+"""
     When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.
 
     This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
     Thanks to ForestMountain1234
     [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
+    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)""" # noqa: E501
 
-    def __init__(self, value: T | None = None) -> None:
-        self.__value = value
-        self.__observers: list[Callable[[T | None], None]] = []
+def __init__(self, value: T | None = None) -> None:
+self.__value = value
+self.__observers: list[Callable[[T | None], None]] = []
 
-    def get(self) -> T | None:
-        return self.__value
+def get(self) -> T | None:
+return self.__value
 
-    def set(self, new_value: T):
-        if self.__value != new_value:
-            self.__value = new_value
-            for observer in self.__observers:
-                observer(self.__value)
+def set(self, new_value: T):
+if self.__value != new_value:
+self.__value = new_value
+for observer in self.__observers:
+observer(self.__value)
 
-    def bind(self, observers: list[Callable[[T | None], None]]):
-        self.__observers.extend(observers)
+def bind(self, observers: list[Callable[[T | None], None]]):
+self.__observers.extend(observers)
 
 
 class ReactiveState(IState, Generic[T]):
 
-    """
+"""
     When reliance states( State or ReactiveState ) or reliance state group is updated, functions( setted by .bind() ) is executed.
 
     This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
     Thanks to ForestMountain1234
     [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
+    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)""" # noqa: E501
 
-    # --original comment--
-    # formula: State等を用いて最終的にT型の値を返す関数。
-    # 例えばlambda value: f'value:{value}'といった関数を渡す。
-    # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
+# --original comment--
+# formula: State等を用いて最終的にT型の値を返す関数。
+# 例えばlambda value: f'value:{value}'といった関数を渡す。
+# reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: list[IState]):
-        # reliance_group is being designed and prepared
+def __init__(self, formula: Callable[[], T], reliance_states: list[IState]):
+# reliance_group is being designed and prepared
 
-        self.__value = State(formula())
-        # --original comment--
-        # 通常のStateクラスとは違い、valueがStateである
+self.__value = State(formula())
+# --original comment--
+# 通常のStateクラスとは違い、valueがStateである
 
-        self.__formula = formula
-        self.__observers: list[Callable[[T | None], None]] = []
+self.__formula = formula
+self.__observers: list[Callable[[T | None], None]] = []
 
-        for state in reliance_states:
-            # --original comment--
-            # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind([lambda _: self._update()])
+for state in reliance_states:
+# --original comment--
+# 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
+state.bind([lambda _: self._update()])
 
-    def get(self) -> T | None:
-        return self.__value.get()
+def get(self) -> T | None:
+return self.__value.get()
 
-    def _update(self):
-        old_value = self.__value.get()
-        # --original comment--
-        # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        self.__value.set(self.__formula())
+def _update(self):
+old_value = self.__value.get()
+# --original comment--
+# コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
+self.__value.set(self.__formula())
 
-        if old_value != self.__value.get():
-            for observer in self.__observers:
-                observer(self.__value.get())
-                # --original comment--
-                # 変更時に各observerに通知する
+if old_value != self.__value.get():
+for observer in self.__observers:
+observer(self.__value.get())
+# --original comment--
+# 変更時に各observerに通知する
 
-    def bind(self, observers: list[Callable[[T | None], None]]):
-        self.__observers.extend(observers)
-        # --original comment--
-        # 変更時に呼び出す為のリストに登録
+def bind(self, observers: list[Callable[[T | None], None]]):
+self.__observers.extend(observers)
+# --original comment--
+# 変更時に呼び出す為のリストに登録
 
 
 @dataclass
 class StoreKey:
-    key: str
-    kind: Literal["State", "ReactiveState"]
-    state: State | ReactiveState
+key: str
+kind: Literal["State", "ReactiveState"]
+state: State | ReactiveState
 
 
 class IStateRef(IState, Generic[T]):
-    pass
+pass
 
 class StateRef(IStateRef, Generic[T]):
-    def __init__(
-        self,
-        store,  # :Store
-        key: str,
-    ) -> None:
-        self.__store: Store = store
-        self.__key: str = key
+def __init__(
+    self,
+    store, # :Store
+    key: str,
+) -> None:
+self.__store: Store = store
+self.__key: str = key
 
-    def get(self) -> None:
-        pass
+def get(self) -> None:
+pass
 
-    def bind(self, observers: list[Callable[[T | None], None]]) -> None:
-        pass
+def bind(self, observers: list[Callable[[T | None], None]]) -> None:
+pass
 
-    def _update(self) -> None:
-        pass
+def _update(self) -> None:
+pass
 
 
 class ReactiveStateRef(IStateRef, Generic[T]):
-    def __init__(
-        self,
-        store,  # : Store
-        key: str,
-    ) -> None:
-        self.__store: Store = store
-        self.__key: str = key
+def __init__(
+    self,
+    store, # : Store
+    key: str,
+) -> None:
+self.__store: Store = store
+self.__key: str = key
 
 
 class Store:
-    def __init__(
-        self,
-        states: tuple[tuple[str, Any | None], ...],
-        reactives: tuple[tuple[str, tuple[IState, ...]]],
-    ) -> None:
-        self.__keys: list[str] = []
-        self.__states: dict[str, State | ReactiveState] = {}
-        self.__stores: list[Store] = []
+def __init__(
+    self,
+    states: tuple[tuple[str, Any | None], ...],
+    reactives: tuple[tuple[str, tuple[IState, ...]]],
+) -> None:
+self.__keys: list[str] = []
+self.__states: dict[str, State | ReactiveState] = {}
+self.__stores: list[Store] = []
 
-    def add_state(self, *keys: str):
-        """add_state
+def add_state(self, *keys: str):
+"""add_state
         This method is equal `Store.state(("key",None),("key2",None))`
         """
-        pass
+pass
 
-    def state(self, *sets: tuple[str, Any | None]) -> None:
-        pass
+def state(self, *sets: tuple[str, Any | None]) -> None:
+pass
 
-    def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
-        pass
+def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
+pass
 
-    def store(
-        self,
-        name: str,
-        states: tuple[tuple[str, Any | None], ...],
-        reactives: tuple[tuple[str, tuple[IState, ...]]],
-    ) -> None:
-        pass
+def store(
+    self,
+    name: str,
+    states: tuple[tuple[str, Any | None], ...],
+    reactives: tuple[tuple[str, tuple[IState, ...]]],
+) -> None:
+pass
 
-    def remove(self):
-        pass
+def remove(self):
+pass
 
-    def remove_store(self):
-        pass
+def remove_store(self):
+pass
 
-    def bind(self):
-        pass
+def bind(self):
+pass
 
-    def unbind(self):
-        pass
+def unbind(self):
+pass
 
-    def set(self):
-        pass
+def set(self):
+pass
 
-    def get_store(self):
-        pass
+def get_store(self):
+pass
 
-    def ref(self) -> StateRef | ReactiveStateRef:  # type: ignore
-        pass
+def ref(self) -> StateRef | ReactiveStateRef: # type: ignore
+pass
 
-    def ref_s(self) -> StateRef:  # type: ignore
-        pass
+def ref_s(self) -> StateRef: # type: ignore
+pass
 
-    def ref_r(self) -> ReactiveStateRef:  # type: ignore
-        pass
+def ref_r(self) -> ReactiveStateRef: # type: ignore
+pass
 
 
 TState: TypeAlias = IState | State | ReactiveState
