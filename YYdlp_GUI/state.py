@@ -106,17 +106,21 @@ class IStateRef(IState, Generic[T]):
 class Store:
     def __init__(
             self,
-            state_sets: tuple[tuple[str, Any | None],...],
-            reactive_sets: tuple[tuple[str, tuple[IState, ...]]]
+            state: tuple[tuple[str, Any | None],...],
+            state_keys: tuple[str],
+            reactive: tuple[tuple[str, tuple[IState, ...]]],
         ) -> None:
         self.__keys: list[str] = []
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: list[Store] = []
 
-    def add_state(self, *sets: tuple[str, Any | None]):
+    def state(self, *sets: tuple[str, Any | None]):
+        pass
+    
+    def add_state(self,*keys: str):
         pass
 
-    def add_reactive(self, *sets: tuple[str, tuple[IState, ...]]):
+    def reactive(self, *sets: tuple[str, tuple[IState, ...]]):
         pass
 
     def store(self, name: str):
