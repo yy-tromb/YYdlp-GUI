@@ -138,7 +138,7 @@ class Store(IStore):
                 raise KeyError()
             else:
                 self.__keys.add(pair[0])
-                self.__states
+                self.__states.setdefault(pair[0],State(pair[1]))
 
     def add_state(self, *keys: str) -> None:
         """add_state
