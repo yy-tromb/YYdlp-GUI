@@ -144,7 +144,12 @@ class Store(IStore):
         """add_state
         This method is equal `Store.state(("key",None),("key2",))`
         """
-        pass
+        for key in keys:
+            if key in self.__keys:
+                raise KeyError()
+            else:
+                self.__keys.add(key)
+                self.__states.setdefault(key,State(None))
 
     def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
         pass
