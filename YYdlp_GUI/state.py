@@ -122,7 +122,7 @@ class Store(IStore):
         # initialise object
         self.__keys: set[str] = set()
         self.__states: dict[str, State | ReactiveState] = {}
-        self.__stores: list[Store] = []
+        self.__stores: dict[str,Store] = {}
         # process arguments
         self.name: str = name
         if states is not None:
@@ -157,11 +157,12 @@ class Store(IStore):
     def store(
         self,
         name: str,
-        states: tuple[tuple[str, Any | None], ...] | None,
-        state_keys: tuple[str] | None,
-        reactives: tuple[tuple[str, tuple[IState, ...]]] | None,
+        states: tuple[tuple[str, Any | None], ...] | None = None,
+        state_keys: tuple[str] | None = None,
+        reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
     ) -> IStore:
         store = Store(name, states, state_keys, reactives)
+        
         # !!!!!!!!!!!!!!
         # ToDo
         # !!!!!!!!!!!!!!
