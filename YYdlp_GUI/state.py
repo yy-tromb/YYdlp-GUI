@@ -138,7 +138,7 @@ class Store(IStore):
                 raise KeyError()
             else:
                 # unneeded -> self.__keys.add(pair[0])
-                self.__states.setdefault(pair[0],State(pair[1]))
+                self.__states[pair[0]] = State(pair[1])
 
     def add_state(self, *keys: str) -> None:
         """add_state
@@ -149,7 +149,7 @@ class Store(IStore):
                 raise KeyError()
             else:
                 # unneeded -> self.__keys.add(key)
-                self.__states.setdefault(key,State(None))
+                self.__states[key] = State(None)
 
     def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
         pass
