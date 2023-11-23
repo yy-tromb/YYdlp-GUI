@@ -120,7 +120,7 @@ class Store(IStore):
         reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
     ) -> None:
         # initialise object
-        self.__keys: set[str] = set()
+        # unneeded -> self.__keys: set[str] = set()
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: dict[str,Store] = {}
         # process arguments
@@ -134,10 +134,10 @@ class Store(IStore):
 
     def state(self, *sets: tuple[str, Any | None]) -> None:
         for pair in sets:
-            if pair[0] in self.__keys:
+            if pair[0] in self.__states:
                 raise KeyError()
             else:
-                self.__keys.add(pair[0])
+                # unneeded -> self.__keys.add(pair[0])
                 self.__states.setdefault(pair[0],State(pair[1]))
 
     def add_state(self, *keys: str) -> None:
@@ -145,10 +145,10 @@ class Store(IStore):
         This method is equal `Store.state(("key",None),("key2",))`
         """
         for key in keys:
-            if key in self.__keys:
+            if key in self.__states:
                 raise KeyError()
             else:
-                self.__keys.add(key)
+                # unneeded -> self.__keys.add(key)
                 self.__states.setdefault(key,State(None))
 
     def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
