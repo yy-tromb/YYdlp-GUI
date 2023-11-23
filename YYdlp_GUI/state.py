@@ -132,8 +132,8 @@ class Store(IStore):
         if reactives is not None:
             self.reactive(*reactives)
 
-    def state(self, *sets: tuple[str, Any | None]) -> None:
-        for pair in sets:
+    def state(self, *pairs: tuple[str, Any | None]) -> None:
+        for pair in pairs:
             if pair[0] in self.__states:
                 raise KeyError()
             else:
