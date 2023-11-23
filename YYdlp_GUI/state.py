@@ -56,7 +56,7 @@ class ReactiveState(IState, Generic[T]):
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: list[IState]):
+    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -151,8 +151,12 @@ class Store(IStore):
                 # unneeded -> self.__keys.add(key)
                 self.__states[key] = State(None)
 
-    def reactive(self, *sets: tuple[str, tuple[IState, ...]]) -> None:
-        pass
+    def reactive(self, *pairs: tuple[str, tuple[IState, ...]]) -> None:
+        for pair in pairs:
+            if pair[0] in self.__states:
+                raise KeyError()
+            else:
+                self.__states[pair[0]] = ReactiveState() # ToDo!
 
     def store(
         self,
