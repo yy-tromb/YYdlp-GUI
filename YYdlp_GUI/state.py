@@ -110,14 +110,15 @@ class IStateRef(IState, Generic[T]):
 class IReactiveStateRef(IState, Generic[T]):
     pass
 
-
+TStateDataPair: TypeAlias= tuple[str, Any | None]
+TReactiveStateDataSet: TypeAlias=tuple[str, tuple[IState, ...]]
 class Store(IStore):
     def __init__(
         self,
         name: str,
-        states: tuple[tuple[str, Any | None], ...] | None = None,
+        states: tuple[TStateDataPair, ...] | None = None,
         state_keys: tuple[str] | None = None,
-        reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
+        reactives: tuple[TReactiveStateDataSet,...] | None = None,
     ) -> None:
         # initialise object
         # unneeded -> self.__keys: set[str] = set()
@@ -132,12 +133,12 @@ class Store(IStore):
         if reactives is not None:
             self.reactive(*reactives)
 
-    def state(self, *pairs: tuple[str, Any | None]) -> None:
+    def state(self, *pairs: TStateDataPair) -> None:
         for pair in pairs:
             if pair[0] in self.__states:
                 raise KeyError()
             else:
-                # unneeded -> self.__keys.add(pair[0])
+                # unneeded : self.__keys.add(pair[0])
                 self.__states[pair[0]] = State(pair[1])
 
     def add_state(self, *keys: str) -> None:
@@ -148,10 +149,10 @@ class Store(IStore):
             if key in self.__states:
                 raise KeyError()
             else:
-                # unneeded -> self.__keys.add(key)
+                # unneeded : self.__keys.add(key)
                 self.__states[key] = State(None)
 
-    def reactive(self, *sets: tuple[str, Callable[[],Any] ,tuple[IState, ...]]) -> None:
+    def reactive(self, *sets: TReactiveStateDataSet) -> None:
         for set_ in sets:
             if set_[0] in self.__states:
                 raise KeyError()
@@ -161,9 +162,9 @@ class Store(IStore):
     def store(
         self,
         name: str,
-        states: tuple[tuple[str, Any | None], ...] | None = None,
+        states: tuple[TStateDataPair, ...] | None = None,
         state_keys: tuple[str] | None = None,
-        reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
+        reactives: tuple[TReactiveStateDataSet,...] | None = None,
     ) -> IStore:
         if name in self.__stores:
             raise KeyError()
