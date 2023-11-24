@@ -166,9 +166,11 @@ class Store(IStore):
         reactives: tuple[tuple[str, tuple[IState, ...]]] | None = None,
     ) -> IStore:
         if name in self.__stores:
+            raise KeyError()
+        else:
             store = Store(name, states, state_keys, reactives)
             self.__stores[name] = store
-        return store
+            return store
 
     def remove(self) -> None:
         pass
