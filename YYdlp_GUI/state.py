@@ -112,6 +112,7 @@ class IReactiveStateRef(IState, Generic[T]):
 
 TStateDataPair: TypeAlias= tuple[str, Any | None]
 TReactiveStateDataSet: TypeAlias=tuple[str, tuple[IState, ...]]
+
 class Store(IStore):
     def __init__(
         self,
