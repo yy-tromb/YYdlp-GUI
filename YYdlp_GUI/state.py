@@ -151,12 +151,12 @@ class Store(IStore):
                 # unneeded -> self.__keys.add(key)
                 self.__states[key] = State(None)
 
-    def reactive(self, *pairs: tuple[str, tuple[IState, ...]]) -> None:
-        for pair in pairs:
-            if pair[0] in self.__states:
+    def reactive(self, *sets: tuple[str, Callable[[],Any] ,tuple[IState, ...]]) -> None:
+        for set_ in sets:
+            if set_[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[pair[0]] = ReactiveState() # ToDo!
+                self.__states[set_[0]] = ReactiveState() # ToDo!
 
     def store(
         self,
