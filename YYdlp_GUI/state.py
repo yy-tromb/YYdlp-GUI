@@ -101,6 +101,9 @@ class StoreKey:
 
 class IStore:
     pass
+    ########################
+    # ToDo!!!!!!!!!!!!!!!!!#
+    ########################
 
 
 class IStateRef(IState, Generic[T]):
@@ -180,11 +183,16 @@ class Store(IStore):
     def drop_store(self) -> None:
         pass
 
-    def ondrop(self) -> None:
-        pass
+    def ondrop(self,names: tuple[str],*observers: Callable) -> None:
+        for name in names:
+            self.__stores[name].ondrop_self(observers) # type: ignore
 
-    def ondrop_self(self) -> None:
-        pass
+    def ondrop_self(self,*observers: Callable) -> None:
+        for observer in observers:
+            if observer in self.__ondrops:
+                raise ValueError()
+            else:
+                self.__ondrops.add(observer)
 
     def bind(self,states: tuple[str],*observers : Callable) -> None:
         pass
