@@ -56,7 +56,7 @@ class ReactiveState(IState, Generic[T]):
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState]):
+    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState,...]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -111,7 +111,7 @@ class IReactiveStateRef(IState, Generic[T]):
     pass
 
 TStateDataPair: TypeAlias= tuple[str, Any | None]
-TReactiveStateDataSet: TypeAlias=tuple[str, tuple[IState, ...]]
+TReactiveStateDataSet: TypeAlias=tuple[str, Callable[[],Any] ,tuple[IState, ...]]
 
 class Store(IStore):
     def __init__(
@@ -122,7 +122,6 @@ class Store(IStore):
         reactives: tuple[TReactiveStateDataSet,...] | None = None,
     ) -> None:
         # initialise object
-        # unneeded -> self.__keys: set[str] = set()
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: dict[str,Store] = {}
         # process arguments
@@ -139,7 +138,6 @@ class Store(IStore):
             if pair[0] in self.__states:
                 raise KeyError()
             else:
-                # unneeded : self.__keys.add(pair[0])
                 self.__states[pair[0]] = State(pair[1])
 
     def add_state(self, *keys: str) -> None:
@@ -150,7 +148,6 @@ class Store(IStore):
             if key in self.__states:
                 raise KeyError()
             else:
-                # unneeded : self.__keys.add(key)
                 self.__states[key] = State(None)
 
     def reactive(self, *sets: TReactiveStateDataSet) -> None:
@@ -158,7 +155,7 @@ class Store(IStore):
             if set_[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[set_[0]] = ReactiveState() # ToDo!
+                self.__states[set_[0]] = ReactiveState(set_[1],set_[2])
 
     def store(
         self,
