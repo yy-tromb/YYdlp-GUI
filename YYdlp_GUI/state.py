@@ -209,7 +209,7 @@ class Store(IStore):
         pass
 
 
-class StateRef(IState, Generic[T]):
+class StateRef(IStateRef, Generic[T]):
     def __init__(
         self,
         store: IStore,
@@ -228,7 +228,7 @@ class StateRef(IState, Generic[T]):
         pass
 
 
-class ReactiveStateRef(IState, Generic[T]):
+class ReactiveStateRef(IReactiveStateRef, Generic[T]):
     def __init__(
         self,
         store: IStore,
