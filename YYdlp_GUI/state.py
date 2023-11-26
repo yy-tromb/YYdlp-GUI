@@ -123,7 +123,8 @@ class Store(IStore):
     ) -> None:
         # initialise object
         self.__states: dict[str, State | ReactiveState] = {}
-        self.__stores: dict[str,Store] = {}
+        self.__stores: dict[str,IStore] = {}
+        self.__ondrops: set[Callable] = set()
         # process arguments
         self.name: str = name
         if states is not None:
@@ -177,8 +178,20 @@ class Store(IStore):
 
     def drop_store(self) -> None:
         pass
+    
+    def ondrop(self) -> None:
+        pass
+    
+    def ondrop_self(self) -> None:
+        pass
 
-    def bind(self,name: tuple[str],keys: tuple[str],*observers : Callable ) -> None:
+    def bind(self,states: tuple[str],*observers : Callable ) -> None:
+        pass
+    
+    def bind_store(self,stores: tuple[str],*observers : Callable) -> None:
+        pass
+    
+    def bind_self(self,*observers : Callable) -> None:
         pass
 
     def unbind(self) -> None:
@@ -187,7 +200,7 @@ class Store(IStore):
     def set(self) -> None:
         pass
 
-    def get_store(self, name: str) -> IStore:  # type: ignore
+    def get_store(self, name: str) -> IStore:
         return self.__stores[name]
 
     def ref(self, key: str) -> IStateRef | IReactiveStateRef:  # type: ignore
