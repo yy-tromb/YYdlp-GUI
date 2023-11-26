@@ -124,7 +124,7 @@ class Store(IStore):
         # initialise object
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: dict[str,IStore] = {}
-        self.__ondrops: set[Callable[[],None] = set()
+        self.__ondrops: set[Callable[[],None]] = set()
         self.__observers: set[Callable[[],None]] = set()
         # process arguments
         self.name: str = name
