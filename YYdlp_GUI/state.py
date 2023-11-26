@@ -179,19 +179,19 @@ class Store(IStore):
 
     def drop_store(self) -> None:
         pass
-    
+
     def ondrop(self) -> None:
         pass
-    
+
     def ondrop_self(self) -> None:
         pass
 
     def bind(self,states: tuple[str],*observers : Callable) -> None:
         pass
-    
+
     def bind_store(self,stores: tuple[str],*observers : Callable) -> None:
         pass
-    
+
     def bind_self(self,*observers : Callable) -> None:
         pass
 
