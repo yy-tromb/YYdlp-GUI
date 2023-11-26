@@ -17,12 +17,14 @@ class IState(Generic[T], metaclass=ABCMeta):
 
 class State(IState, Generic[T]):
     """
-    When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.
+When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.
 
-    This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
-    Thanks to ForestMountain1234
-    [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
+This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]\
+(https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943).
+And I did a little changes.
+Thanks to ForestMountain1234
+[ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
+[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
 
     def __init__(self, value: T | None = None) -> None:
         self.__value = value
@@ -44,19 +46,21 @@ class State(IState, Generic[T]):
 class ReactiveState(IState, Generic[T]):
 
     """
-    When reliance states( State or ReactiveState ) or reliance state group is updated, functions( setted by .bind() ) is executed.
+When reliance states( State or ReactiveState ) or reliance state group is updated,
+functions( setted by .bind() ) is executed.
 
-    This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える](https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
-    Thanks to ForestMountain1234
-    [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
+This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]
+(https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
+Thanks to ForestMountain1234
+[ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
+[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
 
     # --original comment--
     # formula: State等を用いて最終的にT型の値を返す関数。
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState,...]):
+    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState, ...]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -113,22 +117,24 @@ class IStateRef(IState, Generic[T]):
 class IReactiveStateRef(IState, Generic[T]):
     pass
 
-TStateDataPair: TypeAlias= tuple[str, Any | None]
-TReactiveStateDataSet: TypeAlias=tuple[str, Callable[[],Any] ,tuple[IState, ...]]
+
+StateDataType: TypeAlias = tuple[str, Any | None]
+ReactiveStateDataType: TypeAlias = tuple[str, Callable[[], Any], tuple[IState, ...]]
+
 
 class Store(IStore):
     def __init__(
         self,
         name: str,
-        states: tuple[TStateDataPair, ...] | None = None,
+        states: tuple[StateDataType, ...] | None = None,
         state_keys: tuple[str] | None = None,
-        reactives: tuple[TReactiveStateDataSet,...] | None = None,
+        reactives: tuple[ReactiveStateDataType, ...] | None = None,
     ) -> None:
         # initialise object
         self.__states: dict[str, State | ReactiveState] = {}
-        self.__stores: dict[str,IStore] = {}
-        self.__ondrops: set[Callable[[],None]] = set()
-        self.__observers: set[Callable[[],None]] = set()
+        self.__stores: dict[str, IStore] = {}
+        self.__ondrops: set[Callable[[], None]] = set()
+        self.__observers: set[Callable[[], None]] = set()
         # process arguments
         self.name: str = name
         if states is not None:
@@ -138,8 +144,8 @@ class Store(IStore):
         if reactives is not None:
             self.reactive(*reactives)
 
-    def state(self, *pairs: TStateDataPair) -> None:
-        for pair in pairs:
+    def state(self, *data_pairs: StateDataType) -> None:
+        for pair in data_pairs:
             if pair[0] in self.__states:
                 raise KeyError()
             else:
@@ -155,19 +161,19 @@ class Store(IStore):
             else:
                 self.__states[key] = State(None)
 
-    def reactive(self, *sets: TReactiveStateDataSet) -> None:
-        for set_ in sets:
+    def reactive(self, *data_sets: ReactiveStateDataType) -> None:
+        for set_ in data_sets:
             if set_[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[set_[0]] = ReactiveState(set_[1],set_[2])
+                self.__states[set_[0]] = ReactiveState(set_[1], set_[2])
 
     def store(
         self,
         name: str,
-        states: tuple[TStateDataPair, ...] | None = None,
+        states: tuple[StateDataType, ...] | None = None,
         state_keys: tuple[str] | None = None,
-        reactives: tuple[TReactiveStateDataSet,...] | None = None,
+        reactives: tuple[ReactiveStateDataType, ...] | None = None,
     ) -> IStore:
         if name in self.__stores:
             raise KeyError()
@@ -176,31 +182,31 @@ class Store(IStore):
             self.__stores[name] = store
             return store
 
-    def remove(self,*keys: str) -> None:
+    def remove(self, *keys: str) -> None:
         for key in keys:
             del self.__states[key]
 
     def drop_store(self) -> None:
         pass
 
-    def ondrop(self,names: tuple[str],*observers: Callable) -> None:
+    def ondrop(self, names: tuple[str], *observers: Callable) -> None:
         for name in names:
-            self.__stores[name].ondrop_self(observers) # type: ignore
+            self.__stores[name].ondrop_self(observers)  # type: ignore
 
-    def ondrop_self(self,*observers: Callable) -> None:
+    def ondrop_self(self, *observers: Callable) -> None:
         for observer in observers:
             if observer in self.__ondrops:
                 raise ValueError()
             else:
                 self.__ondrops.add(observer)
 
-    def bind(self,states: tuple[str],*observers : Callable) -> None:
+    def bind(self, states: tuple[str], *observers: Callable) -> None:
         pass
 
-    def bind_store(self,stores: tuple[str],*observers : Callable) -> None:
+    def bind_store(self, stores: tuple[str], *observers: Callable) -> None:
         pass
 
-    def bind_self(self,*observers : Callable) -> None:
+    def bind_self(self, *observers: Callable) -> None:
         pass
 
     def unbind(self) -> None:
@@ -260,4 +266,4 @@ class ReactiveStateRef(IReactiveStateRef, Generic[T]):
         self.__key: str = key
 
 
-TState: TypeAlias = IState | State | ReactiveState
+StateType: TypeAlias = IState | State | ReactiveState
