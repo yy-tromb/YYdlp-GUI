@@ -171,13 +171,14 @@ class Store(IStore):
             self.__stores[name] = store
             return store
 
-    def remove(self) -> None:
-        pass
+    def remove(self,*keys: str) -> None:
+        for key in keys:
+            del self.__states[key]
 
     def drop_store(self) -> None:
         pass
 
-    def bind(self) -> None:
+    def bind(self,name: tuple[str],keys: tuple[str],*observers : Callable ) -> None:
         pass
 
     def unbind(self) -> None:
@@ -187,7 +188,7 @@ class Store(IStore):
         pass
 
     def get_store(self, name: str) -> IStore:  # type: ignore
-        pass
+        return self.__stores[name]
 
     def ref(self, key: str) -> IStateRef | IReactiveStateRef:  # type: ignore
         pass
