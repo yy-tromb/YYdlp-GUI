@@ -64,7 +64,7 @@ Thanks to ForestMountain1234
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[IState,...], T], reliance_states: tuple[IState, ...]):
+    def __init__(self, formula: Callable[[IState,...], T], *reliance_states: IState):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -72,7 +72,7 @@ Thanks to ForestMountain1234
         # 通常のStateクラスとは違い、valueがStateである
 
         self.__formula = formula
-        self.__observers: list[Callable[[T | None], None]] = []
+        self.__observers: set[Callable[[T | None], None]] = set()
 
         for state in reliance_states:
             # --original comment--
@@ -94,8 +94,12 @@ Thanks to ForestMountain1234
                 # --original comment--
                 # 変更時に各observerに通知する
 
-    def bind(self, observers: list[Callable[[T | None], None]]):
-        self.__observers.extend(observers)
+    def bind(self, *observers: Callable[[T | None], None]):
+        for observer in observers:
+            if observer in self.__observers:
+                raise ValueError()
+            else:
+                self.__observers.add(observer)
         # --original comment--
         # 変更時に呼び出す為のリストに登録
 
