@@ -189,10 +189,12 @@ class Store(IStore):
     def drop_store(self,*names: str) -> None:
         for name in names:
             self.__stores[name].drop_self()
+            del self.__stores[name]
             
     def drop_self(self) -> None:
         for ondrop in self.__ondrops:
             ondrop()
+            del self
 
     def ondrop(self, names: tuple[str], *ondrops: Callable) -> None:
         for name in names:
