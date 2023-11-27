@@ -28,7 +28,7 @@ Thanks to ForestMountain1234
 
     def __init__(self, value: T | None = None) -> None:
         self.__value = value
-        self.__observers: list[Callable[[T | None], None]] = []
+        self.__observers: set[Callable[[T | None], None]] = set()
 
     def get(self) -> T | None:
         return self.__value
@@ -39,8 +39,12 @@ Thanks to ForestMountain1234
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, observers: list[Callable[[T | None], None]]):
-        self.__observers.extend(observers)
+    def bind(self, *observers: Callable[[T | None], None]):
+        for observer in observers:
+            if observer in self.__observers:
+                raise ValueError()
+            else:
+                self.__observers.add(observer)
 
 
 class ReactiveState(IState, Generic[T]):
@@ -60,7 +64,7 @@ Thanks to ForestMountain1234
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
 
-    def __init__(self, formula: Callable[[], T], reliance_states: tuple[IState, ...]):
+    def __init__(self, formula: Callable[[IState,...], T], reliance_states: tuple[IState, ...]):
         # reliance_group is being designed and prepared
 
         self.__value = State(formula())
@@ -119,8 +123,7 @@ class IReactiveStateRef(IState, Generic[T]):
 
 
 StateDataType: TypeAlias = tuple[str, Any | None]
-ReactiveStateDataType: TypeAlias = tuple[str, Callable[[], Any], tuple[IState, ...]]
-
+ReactiveStateDataType: TypeAlias = tuple[str, Callable[[IState,...], Any], tuple[IState, ...]]
 
 class Store(IStore):
     def __init__(
