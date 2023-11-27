@@ -11,7 +11,7 @@ class IState(Generic[T], metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def bind(self, observers: list[Callable[[T | None], None]]):
+    def bind(self, *observers: Callable[[T | None], None]):
         raise NotImplementedError()
 
 
