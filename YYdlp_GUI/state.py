@@ -6,6 +6,9 @@ T = TypeVar("T")
 
 
 class IState(Generic[T], metaclass=ABCMeta):
+    __value: T
+    __observers: set[Callable[[T], None]]
+
     @abstractmethod
     def get(self) -> T | None:
         raise NotImplementedError()
@@ -39,7 +42,7 @@ Thanks to ForestMountain1234
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, observers: tuple[Callable[[T | None], None]]):
+    def bind(self, observers: Callable[[T | None], None]):
         for observer in observers:
             if observer in self.__observers:
                 raise ValueError()
@@ -80,9 +83,9 @@ Thanks to ForestMountain1234
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            state.bind((lambda _: self.update()))
+            state.bind(lambda _: self.update())
         for state in reliance_state_keywords.values():
-            state.bind((lambda _: self.update()))
+            state.bind(lambda _: self.update())
 
     def get(self) -> T | None:
         return self.__value
