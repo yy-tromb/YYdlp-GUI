@@ -27,7 +27,7 @@ Thanks to ForestMountain1234
 [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
 
     def __init__(self, value: T | None = None) -> None:
-        self.__value = value
+        self.__value: T | None= value
         self.__observers: set[Callable[[T | None], None]] = set()
 
     def get(self) -> T | None:
