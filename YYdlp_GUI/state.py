@@ -70,6 +70,7 @@ Thanks to ForestMountain1234
                 ):
         if reliance_states is None and reliance_state_keywords is None:
             raise ValueError()
+
         self.__reliances: tuple[IState] | tuple[()] = reliance_states
         self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
         self.__value: T = formula(*self.__reliances,**self.__reliance_keywords)
