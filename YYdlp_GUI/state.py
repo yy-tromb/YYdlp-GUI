@@ -39,7 +39,7 @@ Thanks to ForestMountain1234
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, *observers: Callable[[T | None], None]):
+    def bind(self, observers: tuple[Callable[[T | None], None]]):
         for observer in observers:
             if observer in self.__observers:
                 raise ValueError()
@@ -62,12 +62,12 @@ Thanks to ForestMountain1234
     # --original comment--
     # formula: State等を用いて最終的にT型の値を返す関数。
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
-    # reliance_states: 依存関係にあるState, ReactiveStateをlist形式で羅列する。
+    # reliance_states: 依存関係にあるState, ReactiveStateをtupleで羅列する。
 
-    def __init__(self, formula: Callable[[IState,...], T], *reliance_states: IState):
-        # reliance_group is being designed and prepared
-
-        self.__value = State(formula())
+    def __init__(self, formula: Callable[[IState,...], T], reliance_states: tuple[IState], reliance_state_keywords: dict[str,IState]):
+        self.__reliances: tuple[IState] = reliance_states
+        self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
+        self.__value = State(formula(*self.__reliances,**self.__reliance_keywords))
         # --original comment--
         # 通常のStateクラスとは違い、valueがStateである
 
@@ -77,7 +77,10 @@ Thanks to ForestMountain1234
         for state in reliance_states:
             # --original comment--
             # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind([lambda _: self._update()])
+            state.bind((lambda _: self._update()))
+
+        for state in self.__reliance_keywords.values():
+            state.bind((lambda: _: self._update()))
 
     def get(self) -> T | None:
         return self.__value.get()
