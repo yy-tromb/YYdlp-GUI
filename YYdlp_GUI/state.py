@@ -67,12 +67,12 @@ Thanks to ForestMountain1234
     def __init__(self, formula: Callable[[IState,...], T], reliance_states: tuple[IState], reliance_state_keywords: dict[str,IState]):
         self.__reliances: tuple[IState] = reliance_states
         self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
-        self.__value = State(formula(*self.__reliances,**self.__reliance_keywords))
+        self.__value: T = formula(*self.__reliances,**self.__reliance_keywords)
         # --original comment--
         # 通常のStateクラスとは違い、valueがStateである
 
         self.__formula = formula
-        self.__observers: set[Callable[[T | None], None]] = set()
+        self.__observers: set[Callable[[T], None]] = set()
 
         for state in reliance_states:
             # --original comment--
@@ -83,21 +83,20 @@ Thanks to ForestMountain1234
             state.bind((lambda _: self._update()))
 
     def get(self) -> T | None:
-        return self.__value.get()
+        return self.__value
 
     def _update(self):
-        old_value = self.__value.get()
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        self.__value.set(self.__formula(*self.__reliances,**self.__reliance_keywords))
-        current_value = self.__value.get()
-        if old_value != current_value:
+        new_value = self.__formula(*self.__reliances,**self.__reliance_keywords)
+        if self.__value != new_value:
+            self.__value = new_value
             for observer in self.__observers:
-                observer(current_value)
+                observer(new_value)
                 # --original comment--
                 # 変更時に各observerに通知する
 
-    def bind(self, *observers: Callable[[T | None], None]):
+    def bind(self, *observers: Callable[[T], None]):
         for observer in observers:
             if observer in self.__observers:
                 raise ValueError()
