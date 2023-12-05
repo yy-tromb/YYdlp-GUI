@@ -77,10 +77,10 @@ Thanks to ForestMountain1234
         for state in reliance_states:
             # --original comment--
             # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind((lambda *_: self._update()))
+            state.bind((lambda _: self._update()))
 
         for state in self.__reliance_keywords.values():
-            state.bind((lambda *_: self._update()))
+            state.bind((lambda _: self._update()))
 
     def get(self) -> T | None:
         return self.__value.get()
@@ -89,11 +89,11 @@ Thanks to ForestMountain1234
         old_value = self.__value.get()
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        self.__value.set(self.__formula())
-
-        if old_value != self.__value.get():
+        self.__value.set(self.__formula(*self.__reliances,**self.__reliance_keywords))
+        current_value = self.__value.get()
+        if old_value != current_value:
             for observer in self.__observers:
-                observer(self.__value.get())
+                observer(current_value)
                 # --original comment--
                 # 変更時に各observerに通知する
 
