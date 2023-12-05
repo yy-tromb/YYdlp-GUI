@@ -196,29 +196,27 @@ class Store(IStore):
     def remove(self, *keys: str) -> None:
         for key in keys:
             del self.__states[key]
-            
+
     def drop_store(self,*names: str) -> None:
         for name in names:
-            self.__stores[name].drop_self()
             del self.__stores[name]
-            
-    def drop_self(self) -> None:
-        for ondrop in self.__ondrops:
-            ondrop()
-            del self
 
-    def ondrop(self, names: tuple[str], *ondrops: Callable) -> None:
+    def ondrop(self, names: tuple[str], ondrops: tuple[Callable[[],None],...]) -> None:
         for name in names:
             self.__stores[name].ondrop_self(*ondrops)
 
-    def ondrop_self(self, *ondrops: Callable) -> None:
+    def ondrop_self(self, *ondrops: Callable[[],None]) -> None:
         for ondrop in ondrops:
             if ondrop in self.__ondrops:
                 raise ValueError()
             else:
                 self.__ondrops.add(ondrop)
+    
+    def __del__(self):
+        for ondrop in self.__ondrops:
+            ondrop()
 
-    def bind(self, states: tuple[str], *observers: Callable) -> None:
+    def bind(self, states: tuple[str], observers: tuple[Callable[[Any | None],None]]) -> None:
         pass
 
     def bind_store(self, stores: tuple[str], *observers: Callable) -> None:
