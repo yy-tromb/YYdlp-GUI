@@ -131,7 +131,7 @@ class IReactiveStateRef(IState, Generic[T]):
 
 
 StateDataType: TypeAlias = tuple[str, Any | None]
-ReactiveStateDataType: TypeAlias = tuple[str, Callable[[IState,...], Any], tuple[IState, ...], dict[str,IState]]
+ReactiveStateDataType: TypeAlias = tuple[str, Callable[[IState,...], Any], tuple[IState, ...] | None, dict[str,IState] | None]
 
 class Store(IStore):
     def __init__(
@@ -173,11 +173,11 @@ class Store(IStore):
                 self.__states[key] = State(None)
 
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
-        for set_ in data_sets:
-            if set_[0] in self.__states:
+        for data in data_sets:
+            if data[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[set_[0]] = ReactiveState(set_[1], set_[2],set_[3])
+                self.__states[data[0]] = ReactiveState(data[1], data[2],data[3])
 
     def store(
         self,
