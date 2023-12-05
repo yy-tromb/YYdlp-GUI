@@ -77,10 +77,10 @@ Thanks to ForestMountain1234
         for state in reliance_states:
             # --original comment--
             # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind((lambda _: self._update()))
+            state.bind((lambda *_: self._update()))
 
         for state in self.__reliance_keywords.values():
-            state.bind((lambda: _: self._update()))
+            state.bind((lambda *_: self._update()))
 
     def get(self) -> T | None:
         return self.__value.get()
