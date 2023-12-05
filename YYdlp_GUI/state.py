@@ -64,28 +64,29 @@ Thanks to ForestMountain1234
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをtupleで羅列する。
 
-    def __init__(self, formula: Callable[[IState,...], T], reliance_states: tuple[IState], reliance_state_keywords: dict[str,IState]):
-        self.__reliances: tuple[IState] = reliance_states
+    def __init__(self, formula: Callable[[IState,...], T],
+                reliance_states: tuple[IState] | tuple[()] = (),
+                reliance_state_keywords: dict[str,IState] = {}
+                ):
+        if reliance_states is None and reliance_state_keywords is None:
+            raise ValueError()
+        self.__reliances: tuple[IState] | tuple[()] = reliance_states
         self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
         self.__value: T = formula(*self.__reliances,**self.__reliance_keywords)
-        # --original comment--
-        # 通常のStateクラスとは違い、valueがStateである
-
         self.__formula = formula
         self.__observers: set[Callable[[T], None]] = set()
 
+        # --original comment--
+        # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            # --original comment--
-            # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
-            state.bind((lambda _: self._update()))
-
-        for state in self.__reliance_keywords.values():
-            state.bind((lambda _: self._update()))
+            state.bind((lambda _: self.update()))
+        for state in reliance_state_keywords.values():
+            state.bind((lambda _: self.update()))
 
     def get(self) -> T | None:
         return self.__value
 
-    def _update(self):
+    def update(self):
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
         new_value = self.__formula(*self.__reliances,**self.__reliance_keywords)
