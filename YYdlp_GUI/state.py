@@ -17,7 +17,7 @@ class IState(Generic[T], metaclass=ABCMeta):
 
 class State(IState, Generic[T]):
     """
-When value is changed( setted by .set() ), functions( setted by .bind() ) is executed.
+When value is changed( setted by state_instance.set() ), functions( setted by state_instance.bind() ) is executed.
 
 This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]\
 (https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943).
@@ -50,8 +50,8 @@ Thanks to ForestMountain1234
 class ReactiveState(IState, Generic[T]):
 
     """
-When reliance states( State or ReactiveState ) or reliance state group is updated,
-functions( setted by .bind() ) is executed.
+When reliance states( State or ReactiveState ) is updated,
+functions( setted by reactivestate_instance.bind() ) is executed.
 
 This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]
 (https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
