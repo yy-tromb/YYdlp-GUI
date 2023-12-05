@@ -164,7 +164,7 @@ class Store(IStore):
 
     def add_state(self, *keys: str) -> None:
         """add_state
-        This method is equal `Store.state(("key",None),("key2",))`
+        This method is equal `store_instance.state(("key",None),("key2",))`
         """
         for key in keys:
             if key in self.__states:
