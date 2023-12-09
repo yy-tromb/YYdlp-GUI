@@ -42,7 +42,7 @@ Thanks to ForestMountain1234
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, observers: Callable[[T | None], None]):
+    def bind(self, *observers: Callable[[T | None], None]):
         for observer in observers:
             if observer in self.__observers:
                 raise ValueError()
@@ -69,11 +69,14 @@ Thanks to ForestMountain1234
 
     def __init__(self, formula: Callable[[IState,...], T],
                 reliance_states: tuple[IState] | tuple[()] = (),
-                reliance_state_keywords: dict[str,IState] = {}
+                reliance_state_keywords: dict[str,IState] = {},
                 ):
         if reliance_states is None and reliance_state_keywords is None:
             raise ValueError()
 
+        # ToDo#####
+        # pre get #
+        ###########
         self.__reliances: tuple[IState] | tuple[()] = reliance_states
         self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
         self.__value: T = formula(*self.__reliances,**self.__reliance_keywords)
