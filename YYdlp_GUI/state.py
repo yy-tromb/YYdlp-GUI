@@ -5,6 +5,20 @@ from dataclasses import dataclass
 T = TypeVar("T")
 
 
+class RedundancyError(Exception):
+    def __init__(self, target: Any | None, message: str = ""):
+        self._message = message
+        self._target = target
+
+    def __str__(self) -> str:
+        return super().__str__(
+            f"""{self._target} is Redundancy.
+日本語:{self._target}は重複しています。
+additional message:
+{self._message}"""
+        )
+
+
 class IState(Generic[T], metaclass=ABCMeta):
     # __value: T
     # __observers: set[Callable[[T], None]]
@@ -29,6 +43,7 @@ And I did a little changes.
 Thanks to ForestMountain1234
 [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
 [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""
+
     def __init__(self, value: T | None = None) -> None:
         self.__value: T | None = value
         self.__observers: set[Callable[[T | None], None]] = set()
@@ -45,7 +60,9 @@ Thanks to ForestMountain1234
     def bind(self, *observers: Callable[[T | None], None]):
         for observer in observers:
             if observer in self.__observers:
-                raise ValueError()
+                raise RedundancyError(
+                    target=observer, message="redudancy observer was given"
+                )
             else:
                 self.__observers.add(observer)
 
