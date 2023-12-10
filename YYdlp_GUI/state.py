@@ -28,8 +28,7 @@ This is based in [this article: Python(Flet)でリアクティブなUIを作る�
 And I did a little changes.
 Thanks to ForestMountain1234
 [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
-
+[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""
     def __init__(self, value: T | None = None) -> None:
         self.__value: T | None = value
         self.__observers: set[Callable[[T | None], None]] = set()
@@ -72,25 +71,21 @@ class ReactiveState(IState, Generic[T]):
         self,
         formula: Callable[[*tuple[IState, ...]], T],
         reliance_states: tuple[IState] | tuple[()] = (),
-        reliance_state_keywords: dict[str, IState] = {},
     ):
-        if reliance_states is None and reliance_state_keywords is None:
+        if reliance_states is None:
             raise ValueError()
 
         # ToDo#####
         # pre get #
         ###########
         self.__reliances: tuple[IState] | tuple[()] = reliance_states
-        self.__reliance_keywords: dict[str, IState] = reliance_state_keywords
-        self.__value: T = formula(*self.__reliances, **self.__reliance_keywords)
+        self.__value: T = formula(*self.__reliances)
         self.__formula = formula
         self.__observers: set[Callable[[T], None]] = set()
 
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            state.bind(lambda _: self.update())
-        for state in reliance_state_keywords.values():
             state.bind(lambda _: self.update())
 
     def get(self) -> T | None:
@@ -99,7 +94,7 @@ class ReactiveState(IState, Generic[T]):
     def update(self):
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        new_value = self.__formula(*self.__reliances, **self.__reliance_keywords)
+        new_value = self.__formula(*self.__reliances)
         if self.__value != new_value:
             self.__value = new_value
             for observer in self.__observers:
@@ -144,7 +139,6 @@ ReactiveStateDataType: TypeAlias = tuple[
     str,
     Callable[[*tuple[IState, ...]], Any],
     tuple[IState, ...] | None,
-    dict[str, IState] | None,
 ]
 
 
@@ -192,7 +186,7 @@ class Store(IStore):
             if data[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[data[0]] = ReactiveState(data[1], data[2], data[3])
+                self.__states[data[0]] = ReactiveState(data[1], data[2])
 
     def store(
         self,
