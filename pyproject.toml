@@ -21,6 +21,7 @@ ruff = "^0.0.284"
 pytest-mock = "^3.11.1"
 mypy = "^1.5.1"
 pyinstaller = "^6.0.0"
+pytest-cov = "^4.1.0"
 
 [tool.ruff]
 select = ["F","E","W","I","B","PL","RUF","UP"]
