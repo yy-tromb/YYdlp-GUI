@@ -9,7 +9,7 @@ packages = [{include = "YYdlp_GUI"}]
 
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
-flet = "^0.12.2"
+flet = "^0.15.0"
 yt-dlp = "^2023.11.14"
 asyncio = "^3.4.3"
 
@@ -22,6 +22,8 @@ pytest-mock = "^3.11.1"
 mypy = "^1.5.1"
 pyinstaller = "^6.0.0"
 pytest-cov = "^4.1.0"
+pytest-watch = "^4.2.0"
+nox = "^2023.4.22"
 
 [tool.ruff]
 select = ["F","E","W","I","B","PL","RUF","UP"]
