@@ -6,8 +6,8 @@ T = TypeVar("T")
 
 
 class IState(Generic[T], metaclass=ABCMeta):
-    __value: T
-    __observers: set[Callable[[T], None]]
+    # __value: T
+    # __observers: set[Callable[[T], None]]
 
     @abstractmethod
     def get(self) -> T | None:
@@ -20,7 +20,8 @@ class IState(Generic[T], metaclass=ABCMeta):
 
 class State(IState, Generic[T]):
     """
-When value is changed( setted by state_instance.set() ), functions( setted by state_instance.bind() ) is executed.
+When value is changed( setted by state_instance.set() ),\
+functions( setted by state_instance.bind() ) is executed.
 
 This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]\
 (https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943).
@@ -30,7 +31,7 @@ Thanks to ForestMountain1234
 [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
 
     def __init__(self, value: T | None = None) -> None:
-        self.__value: T | None= value
+        self.__value: T | None = value
         self.__observers: set[Callable[[T | None], None]] = set()
 
     def get(self) -> T | None:
@@ -53,24 +54,26 @@ Thanks to ForestMountain1234
 class ReactiveState(IState, Generic[T]):
 
     """
-When reliance states( State or ReactiveState ) is updated,
-functions( setted by reactivestate_instance.bind() ) is executed.
+    When reliance states( State or ReactiveState ) is updated,
+    functions( setted by reactivestate_instance.bind() ) is executed.
 
-This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]
-(https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
-Thanks to ForestMountain1234
-[ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
-[ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
+    This is based in [this article: Python(Flet)でリアクティブなUIを作る方法を考える]
+    (https://qiita.com/ForestMountain1234/items/64edacd5275c1ce4c943). And I did a little changes.
+    Thanks to ForestMountain1234
+    [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
+    [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""  # noqa: E501
 
     # --original comment--
     # formula: State等を用いて最終的にT型の値を返す関数。
     # 例えばlambda value: f'value:{value}'といった関数を渡す。
     # reliance_states: 依存関係にあるState, ReactiveStateをtupleで羅列する。
 
-    def __init__(self, formula: Callable[[IState,...], T],
-                reliance_states: tuple[IState] | tuple[()] = (),
-                reliance_state_keywords: dict[str,IState] = {},
-                ):
+    def __init__(
+        self,
+        formula: Callable[[*tuple[IState, ...]], T],
+        reliance_states: tuple[IState] | tuple[()] = (),
+        reliance_state_keywords: dict[str, IState] = {},
+    ):
         if reliance_states is None and reliance_state_keywords is None:
             raise ValueError()
 
@@ -78,8 +81,8 @@ Thanks to ForestMountain1234
         # pre get #
         ###########
         self.__reliances: tuple[IState] | tuple[()] = reliance_states
-        self.__reliance_keywords: dict[str,IState] = reliance_state_keywords
-        self.__value: T = formula(*self.__reliances,**self.__reliance_keywords)
+        self.__reliance_keywords: dict[str, IState] = reliance_state_keywords
+        self.__value: T = formula(*self.__reliances, **self.__reliance_keywords)
         self.__formula = formula
         self.__observers: set[Callable[[T], None]] = set()
 
@@ -96,7 +99,7 @@ Thanks to ForestMountain1234
     def update(self):
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        new_value = self.__formula(*self.__reliances,**self.__reliance_keywords)
+        new_value = self.__formula(*self.__reliances, **self.__reliance_keywords)
         if self.__value != new_value:
             self.__value = new_value
             for observer in self.__observers:
@@ -137,7 +140,13 @@ class IReactiveStateRef(IState, Generic[T]):
 
 
 StateDataType: TypeAlias = tuple[str, Any | None]
-ReactiveStateDataType: TypeAlias = tuple[str, Callable[[IState,...], Any], tuple[IState, ...] | None, dict[str,IState] | None]
+ReactiveStateDataType: TypeAlias = tuple[
+    str,
+    Callable[[*tuple[IState, ...]], Any],
+    tuple[IState, ...] | None,
+    dict[str, IState] | None,
+]
+
 
 class Store(IStore):
     def __init__(
@@ -183,7 +192,7 @@ class Store(IStore):
             if data[0] in self.__states:
                 raise KeyError()
             else:
-                self.__states[data[0]] = ReactiveState(data[1], data[2],data[3])
+                self.__states[data[0]] = ReactiveState(data[1], data[2], data[3])
 
     def store(
         self,
@@ -203,26 +212,30 @@ class Store(IStore):
         for key in keys:
             del self.__states[key]
 
-    def drop_store(self,*names: str) -> None:
+    def drop_store(self, *names: str) -> None:
         for name in names:
             del self.__stores[name]
 
-    def ondrop(self, names: tuple[str], ondrops: tuple[Callable[[],None],...]) -> None:
+    def ondrop(
+        self, names: tuple[str], ondrops: tuple[Callable[[], None], ...]
+    ) -> None:
         for name in names:
             self.__stores[name].ondrop_self(*ondrops)
 
-    def ondrop_self(self, *ondrops: Callable[[],None]) -> None:
+    def ondrop_self(self, *ondrops: Callable[[], None]) -> None:
         for ondrop in ondrops:
             if ondrop in self.__ondrops:
                 raise ValueError()
             else:
                 self.__ondrops.add(ondrop)
-    
+
     def __del__(self):
         for ondrop in self.__ondrops:
             ondrop()
 
-    def bind(self, states: tuple[str], observers: tuple[Callable[[Any | None],None]]) -> None:
+    def bind(
+        self, states: tuple[str], observers: tuple[Callable[[Any | None], None]]
+    ) -> None:
         pass
 
     def bind_store(self, stores: tuple[str], *observers: Callable) -> None:
