@@ -143,15 +143,18 @@ class ReactiveState(IState, Generic[T]):
                 # 変更時に各observerに通知する
 
     def bind(self, *observers: Callable[[T], None]):
-        for observer in observers:
-            if observer in self.__observers:
-                raise RedundancyError(
-                    target=observer, message="redudancy observer was given"
-                )
-            else:
-                self.__observers.add(observer)
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers\
+                        if observer in self.__observers
+                ),
+                message="redudancy observer was given",
+            )
         # --original comment--
-        # 変更時に呼び出す為のリストに登録
+        # 変更時に呼び出す為の集合に登録
 
 
 @dataclass
