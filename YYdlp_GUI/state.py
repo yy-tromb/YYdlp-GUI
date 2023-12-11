@@ -1,4 +1,12 @@
-from typing import TypeVar, Generic, Callable, Literal, TypeAlias, Any, Final, UnPack
+from typing import (
+    TypeVar,
+    Generic,
+    Callable,
+    Literal,
+    TypeAlias,
+    Any,
+    Final,
+)
 from abc import abstractmethod, ABCMeta
 from dataclasses import dataclass
 
@@ -6,7 +14,7 @@ T = TypeVar("T")
 
 
 class RedundancyError(Exception):
-    def __init__(self, target: Any | None, message: str = ""):
+    def __init__(self, target: Any | None, message: str = "") -> None:
         self._message = message
         self._target = target
 
@@ -14,6 +22,20 @@ class RedundancyError(Exception):
         return super().__str__(
             f"""{self._target} is Redundancy.
 日本語:{self._target}は重複しています。
+additional message:
+{self._message}"""
+        )
+
+
+class EssentialError(Exception):
+    def __init__(self, target: Any | None, message: str = "") -> None:
+        self._message = message
+        self._target = target
+
+    def __str__(self) -> str:
+        return super().__str__(
+            f"""Essentials was not given. given {self._target}
+日本語:必要なものが与えられませんでした。{self._target}が与えられました。
 additional message:
 {self._message}"""
         )
@@ -87,15 +109,16 @@ class ReactiveState(IState, Generic[T]):
     def __init__(
         self,
         formula: Callable[[*tuple[IState, ...]], T],
-        reliance_states: tuple[IState] | tuple[()] = (),
+        # This is Python3.11 feature.
+        # Can't use in PyPy latest 3.10
+        reliance_states: tuple[IState] | None = None,
     ):
         if reliance_states is None:
-            raise ValueError()
+            raise EssentialError(
+                target=reliance_states, message="reliance_states is essential."
+            )
 
-        # ToDo#####
-        # pre get #
-        ###########
-        self.__reliances: tuple[IState] | tuple[()] = reliance_states
+        self.__reliances: tuple[IState] = reliance_states
         self.__value: T = formula(*self.__reliances)
         self.__formula = formula
         self.__observers: set[Callable[[T], None]] = set()
@@ -122,7 +145,9 @@ class ReactiveState(IState, Generic[T]):
     def bind(self, *observers: Callable[[T], None]):
         for observer in observers:
             if observer in self.__observers:
-                raise ValueError()
+                raise RedundancyError(
+                    target=observer, message="redudancy observer was given"
+                )
             else:
                 self.__observers.add(observer)
         # --original comment--
@@ -155,6 +180,8 @@ StateDataType: TypeAlias = tuple[str, Any | None]
 ReactiveStateDataType: TypeAlias = tuple[
     str,
     Callable[[*tuple[IState, ...]], Any],
+    # This is Python3.11 feature.
+    # Can't use in PyPy latest 3.10
     tuple[IState, ...] | None,
 ]
 
