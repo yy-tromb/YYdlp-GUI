@@ -12,19 +12,16 @@ from dataclasses import dataclass
 
 T = TypeVar("T")
 
-
 class RedundancyError(Exception):
     def __init__(self, target: Any | None, message: str = "") -> None:
         self._message = message
         self._target = target
 
     def __str__(self) -> str:
-        return super().__str__(
-            f"""{self._target} is Redundancy.
+        return f"""{self._target} is Redundancy.
 日本語:{self._target}は重複しています。
 additional message:
 {self._message}"""
-        )
 
 
 class EssentialError(Exception):
@@ -33,12 +30,10 @@ class EssentialError(Exception):
         self._target = target
 
     def __str__(self) -> str:
-        return super().__str__(
-            f"""Essentials was not given. given {self._target}
+        return f"""Essentials was not given. given {self._target}
 日本語:必要なものが与えられませんでした。{self._target}が与えられました。
 additional message:
 {self._message}"""
-        )
 
 
 class IState(Generic[T], metaclass=ABCMeta):
@@ -80,13 +75,17 @@ Thanks to ForestMountain1234
                 observer(self.__value)
 
     def bind(self, *observers: Callable[[T | None], None]):
-        for observer in observers:
-            if observer in self.__observers:
-                raise RedundancyError(
-                    target=observer, message="redudancy observer was given"
-                )
-            else:
-                self.__observers.add(observer)
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given",
+            )
+        # --original comment--
+        # 変更時に呼び出す為の集合に登録
 
 
 class ReactiveState(IState, Generic[T]):
@@ -148,8 +147,7 @@ class ReactiveState(IState, Generic[T]):
         if len(self.__observers) < prev_len + len(observers):
             raise RedundancyError(
                 target=tuple(
-                    observer for observer in observers\
-                        if observer in self.__observers
+                    observer for observer in observers if observer in self.__observers
                 ),
                 message="redudancy observer was given",
             )
