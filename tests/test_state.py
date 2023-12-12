@@ -52,11 +52,14 @@ def test_state_normal(value0: T, value1: T) -> None:
     assert error2.value._message == "redudancy observer was given"
 
 @pytest.mark.parametrize(
-    ("value0","value1"),
-    [
-        (0,""),
-        ("init",256),
-    ],
+    ("value1"),
+    [0,"init",(),[],{},set()],
 )
-def test_state_miss_type(value0: Any,value1: Any):
-    state = State(value0)
+def test_state_without_arg(value1: T) -> None:
+    state = State()
+    assert state.get() is None
+    state.bind(bind_1, bind_2)
+    state.set(value1)
+    assert bind_1_value[0] == value1
+    assert bind_2_value[0] == value1
+    
