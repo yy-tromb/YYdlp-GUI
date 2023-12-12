@@ -37,7 +37,9 @@ def test_state_normal(value0: T, value1: T) -> None:
     assert state.get() == value0
     state.bind(bind_1, bind_2)
     state.set(value1)
-
+    assert bind_1_value[0] == value1
+    assert bind_2_value[0] == value1
+    assert state.get() == value1
 
 @pytest.mark.parametrize(
     ("value1"),
@@ -50,7 +52,7 @@ def test_state_without_arg(value1: T) -> None:
     state.set(value1)
     assert bind_1_value[0] == value1
     assert bind_2_value[0] == value1
-
+    assert state.get() == value1
 
 def test_state_redudancy_bind():
     state = State()
@@ -58,6 +60,7 @@ def test_state_redudancy_bind():
     state.set(0)
     assert bind_1_value[0] == 0
     assert bind_2_value[0] == 0
+    assert state.get() == value1
     with pytest.raises(RedundancyError) as error:
         state.bind(bind_1)
     assert error.value._target[0].__name__ == "bind_1"
