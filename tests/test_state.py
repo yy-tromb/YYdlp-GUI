@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, Any
 import pytest
 from YYdlp_GUI.state import State, RedundancyError, EssentialError
 
@@ -51,3 +51,12 @@ def test_state_normal(value0: T, value1: T) -> None:
     )
     assert error2.value._message == "redudancy observer was given"
 
+@pytest.mark.parametrize(
+    ("value0","value1"),
+    [
+        (0,""),
+        ("init",256),
+    ],
+)
+def test_state_miss_type(value0: Any,value1: Any):
+    state = State(value0)
