@@ -38,15 +38,33 @@ additional message:
 
 
 class IState(Generic[_T], metaclass=ABCMeta):
+    """State Interface
+
+    Methods:
+        get() -> _T | None
+        bind(*observers: Callable[[_T | None], None]) -> None
+
+    Raises:
+        NotImplementedError: if implements class do not implement this method,
+                                NotImplementedError is raised
+    """
+
     # __value: T
     # __observers: set[Callable[[T], None]]
 
     @abstractmethod
     def get(self) -> _T | None:
+        """return current value"""
         raise NotImplementedError()
 
     @abstractmethod
-    def bind(self, *observers: Callable[[_T | None], None]):
+    def bind(self, *observers: Callable[[_T | None], None]) -> None:
+        """bind observer functions
+
+        Raises:
+            RedundancyError: if observer given by arguments have already binded,
+                                RedudancyError is raised.
+        """
         raise NotImplementedError()
 
 
@@ -68,9 +86,10 @@ Thanks to ForestMountain1234
         self.__observers: set[Callable[[_T | None], None]] = set()
 
     def get(self) -> _T | None:
+        """return current value"""
         return self.__value
 
-    def set(self, new_value: _T):
+    def set(self, new_value: _T) -> None:
         """set new value
 
         binded observer functions is executed.
@@ -84,7 +103,7 @@ Thanks to ForestMountain1234
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, *observers: Callable[[_T | None], None]):
+    def bind(self, *observers: Callable[[_T | None], None]) -> None:
         """bind observer functions
 
         Raises:
@@ -126,7 +145,7 @@ class ReactiveState(IState, Generic[_T]):
         # This is Python3.11 feature.
         # Can't use in PyPy latest 3.10
         reliance_states: tuple[IState] | None = None,
-    ):
+    ) -> None:
         if reliance_states is None:
             raise EssentialError(
                 target=reliance_states, message="reliance_states is essential."
@@ -143,9 +162,10 @@ class ReactiveState(IState, Generic[_T]):
             state.bind(lambda _: self.update())
 
     def get(self) -> _T | None:
+        """return current value"""
         return self.__value
 
-    def update(self):
+    def update(self) -> None:
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
         new_value = self.__formula(*self.__reliances)
@@ -156,7 +176,13 @@ class ReactiveState(IState, Generic[_T]):
                 # --original comment--
                 # 変更時に各observerに通知する
 
-    def bind(self, *observers: Callable[[_T], None]):
+    def bind(self, *observers: Callable[[_T], None]) -> None:
+        """bind observer functions
+
+        Raises:
+            RedundancyError: if observer given by arguments have already binded,
+                                RedudancyError is raised.
+        """
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
