@@ -69,7 +69,8 @@ class IState(Generic[_T], metaclass=ABCMeta):
 
 
 class State(IState, Generic[_T]):
-    """management value by state.  
+    """management value by state.  \
+
 
 When value is changed( setted by state_instance.set() ),\
 functions( setted by state_instance.bind() ) is executed.
