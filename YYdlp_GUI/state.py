@@ -10,7 +10,8 @@ from typing import (
 from abc import abstractmethod, ABCMeta
 from dataclasses import dataclass
 
-T = TypeVar("T")
+_T = TypeVar("_T")
+
 
 class RedundancyError(Exception):
     def __init__(self, target: Any | None, message: str = "") -> None:
@@ -36,21 +37,22 @@ additional message:
 {self._message}"""
 
 
-class IState(Generic[T], metaclass=ABCMeta):
+class IState(Generic[_T], metaclass=ABCMeta):
     # __value: T
     # __observers: set[Callable[[T], None]]
 
     @abstractmethod
-    def get(self) -> T | None:
+    def get(self) -> _T | None:
         raise NotImplementedError()
 
     @abstractmethod
-    def bind(self, *observers: Callable[[T | None], None]):
+    def bind(self, *observers: Callable[[_T | None], None]):
         raise NotImplementedError()
 
 
-class State(IState, Generic[T]):
-    """
+class State(IState, Generic[_T]):
+    """management value by state.  
+
 When value is changed( setted by state_instance.set() ),\
 functions( setted by state_instance.bind() ) is executed.
 
@@ -61,20 +63,34 @@ Thanks to ForestMountain1234
 [ForestMountain1234's GitHub](https://github.com/ForestMountain1234)
 [ForestMountain1234's Qiita](https://qiita.com/ForestMountain1234/)"""
 
-    def __init__(self, value: T | None = None) -> None:
-        self.__value: T | None = value
-        self.__observers: set[Callable[[T | None], None]] = set()
+    def __init__(self, value: _T | None = None) -> None:
+        self.__value: _T | None = value
+        self.__observers: set[Callable[[_T | None], None]] = set()
 
-    def get(self) -> T | None:
+    def get(self) -> _T | None:
         return self.__value
 
-    def set(self, new_value: T):
+    def set(self, new_value: _T):
+        """set new value
+
+        binded observer functions is executed.
+
+        Note:
+            if new value is the same as old value,
+            new value isn't assigned.
+        """
         if self.__value != new_value:
             self.__value = new_value
             for observer in self.__observers:
                 observer(self.__value)
 
-    def bind(self, *observers: Callable[[T | None], None]):
+    def bind(self, *observers: Callable[[_T | None], None]):
+        """bind observer functions
+
+        Raises:
+            RedundancyError: if observer given by arguments have already binded,
+                                RedudancyError is raised.
+        """
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
@@ -88,8 +104,7 @@ Thanks to ForestMountain1234
         # 変更時に呼び出す為の集合に登録
 
 
-class ReactiveState(IState, Generic[T]):
-
+class ReactiveState(IState, Generic[_T]):
     """
     When reliance states( State or ReactiveState ) is updated,
     functions( setted by reactivestate_instance.bind() ) is executed.
@@ -107,7 +122,7 @@ class ReactiveState(IState, Generic[T]):
 
     def __init__(
         self,
-        formula: Callable[[*tuple[IState, ...]], T],
+        formula: Callable[[*tuple[IState, ...]], _T],
         # This is Python3.11 feature.
         # Can't use in PyPy latest 3.10
         reliance_states: tuple[IState] | None = None,
@@ -118,16 +133,16 @@ class ReactiveState(IState, Generic[T]):
             )
 
         self.__reliances: tuple[IState] = reliance_states
-        self.__value: T = formula(*self.__reliances)
+        self.__value: _T = formula(*self.__reliances)
         self.__formula = formula
-        self.__observers: set[Callable[[T], None]] = set()
+        self.__observers: set[Callable[[_T], None]] = set()
 
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
             state.bind(lambda _: self.update())
 
-    def get(self) -> T | None:
+    def get(self) -> _T | None:
         return self.__value
 
     def update(self):
@@ -141,7 +156,7 @@ class ReactiveState(IState, Generic[T]):
                 # --original comment--
                 # 変更時に各observerに通知する
 
-    def bind(self, *observers: Callable[[T], None]):
+    def bind(self, *observers: Callable[[_T], None]):
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
@@ -169,11 +184,11 @@ class IStore:
     ########################
 
 
-class IStateRef(IState, Generic[T]):
+class IStateRef(IState, Generic[_T]):
     pass
 
 
-class IReactiveStateRef(IState, Generic[T]):
+class IReactiveStateRef(IState, Generic[_T]):
     pass
 
 
@@ -311,7 +326,7 @@ class Store(IStore):
         pass
 
 
-class StateRef(IStateRef, Generic[T]):
+class StateRef(IStateRef, Generic[_T]):
     def __init__(
         self,
         store: IStore,
@@ -323,14 +338,14 @@ class StateRef(IStateRef, Generic[T]):
     def get(self) -> None:
         pass
 
-    def bind(self, observers: list[Callable[[T | None], None]]) -> None:
+    def bind(self, observers: list[Callable[[_T | None], None]]) -> None:
         pass
 
     def _update(self) -> None:
         pass
 
 
-class ReactiveStateRef(IReactiveStateRef, Generic[T]):
+class ReactiveStateRef(IReactiveStateRef, Generic[_T]):
     def __init__(
         self,
         store: IStore,
