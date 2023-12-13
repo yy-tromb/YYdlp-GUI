@@ -60,7 +60,7 @@ def test_state_redudancy_bind():
     state.set(0)
     assert bind_1_value[0] == 0
     assert bind_2_value[0] == 0
-    assert state.get() == value1
+    assert state.get() == 0
     with pytest.raises(RedundancyError) as error:
         state.bind(bind_1)
     assert error.value._target[0].__name__ == "bind_1"
@@ -72,3 +72,6 @@ def test_state_redudancy_bind():
         and error2.value._target[1].__name__ == "bind_1"
     )
     assert error2.value._message == "redudancy observer was given"
+
+# state.ReactiveState tests
+
