@@ -75,3 +75,9 @@ def test_state_redudancy_bind():
 
 # state.ReactiveState tests
 
+@pytest.fixture(scope="module",autouse=True)
+def reactive_fixture():
+    pass
+
+def test_reactive_state_normal():
+    pass
