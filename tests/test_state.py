@@ -77,7 +77,9 @@ def test_state_redudancy_bind():
 
 @pytest.fixture(scope="module",autouse=True)
 def reactive_fixture():
-    pass
+    state0 = State(0)
+    state1 = State("Not initialize")
+    rs = ReactiveState()
 
 def test_reactive_state_normal():
     pass
