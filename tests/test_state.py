@@ -90,6 +90,13 @@ def test_reactive_state_normal(reactive_state_set):
     reactive_state = reactive_state_set[0]
     state0 = reactive_state_set[1]
     state1 = reactive_state_set[2]
+    reactive_state.bind(lambda value: assert value == state0.get() + state1.get())
+    reactive_state_bind_called = reactive_state.get()
+    reactive_state.bind(lambda value: reactive_state_bind_called = value)
     assert reactive_state.get() == 0+100
     state0.set(1)
     assert reactive_state.get() == 1+100
+    assert reactive_state_bind_called == reactive_state.get()
+    state1.set(0)
+    assert reactive_state.get() == 1+0
+    assert reactive_state_bind_called == reactive_state.get()
