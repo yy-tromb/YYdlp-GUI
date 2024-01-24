@@ -75,18 +75,21 @@ def test_state_redudancy_bind():
 
 # state.ReactiveState tests
 
-@pytest.fixture(scope="module",autouse=True)
-def reactive_state_fixture():
+@pytest.fixture(scope="function",autouse=True)
+def reactive_state_set():
     state0 = State(0)
     state1 = State(100)
     def formula(value0,value1):
-        return f"""
-        value0: {value0}
-        value1: {value1}"""
-    rs = ReactiveState(
+        return value0+value1
+    reactive_state = ReactiveState(
         formula=formula,
         reliance_states=(state0,state1))
-    return rs
+    return (reactive_state,state0,state1)
 
-def test_reactive_state_normal():
-    pass
+def test_reactive_state_normal(reactive_state_set):
+    reactive_state = reactive_state_set[0]
+    state0 = reactive_state_set[1]
+    state1 = reactive_state_set[2]
+    assert reactive_state.get() == 0+100
+    state0.set(1)
+    assert reactive_state.get() == 1+100
