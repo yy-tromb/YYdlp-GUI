@@ -6,6 +6,7 @@ from typing import (
     TypeAlias,
     Any,
     Final,
+    Unpack
 )
 from abc import abstractmethod, ABCMeta
 from dataclasses import dataclass
