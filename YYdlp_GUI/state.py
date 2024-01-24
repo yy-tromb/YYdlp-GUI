@@ -196,7 +196,6 @@ class ReactiveState(IState, Generic[_T]):
         # --original comment--
         # 変更時に呼び出す為の集合に登録
 
-
 @dataclass
 class StoreKey:
     key: str
