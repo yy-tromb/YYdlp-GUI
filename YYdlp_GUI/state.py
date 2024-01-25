@@ -220,7 +220,7 @@ ReactiveStateDataType: TypeAlias = tuple[
     Callable[[*tuple[IState, ...]], Any],
     # This is Python3.11 feature.
     # Can't use in PyPy latest 3.10
-    tuple[IState, ...] | None,
+    tuple[IState, ...],
 ]
 
 
