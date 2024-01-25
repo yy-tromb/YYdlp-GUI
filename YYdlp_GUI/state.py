@@ -16,26 +16,26 @@ _T = TypeVar("_T")
 
 class RedundancyError(Exception):
     def __init__(self, target: Any | None, message: str = "") -> None:
-        self._message = message
-        self._target = target
+        self.message = message
+        self.target = target
 
     def __str__(self) -> str:
-        return f"""{self._target} is Redundancy.
-日本語:{self._target}は重複しています。
+        return f"""{self.target} is Redundancy.
+日本語:{self.target}は重複しています。
 additional message:
-{self._message}"""
+{self.message}"""
 
 
 class EssentialError(Exception):
     def __init__(self, target: Any | None, message: str = "") -> None:
-        self._message = message
-        self._target = target
+        self.message = message
+        self.target = target
 
     def __str__(self) -> str:
-        return f"""Essentials was not given. given {self._target}
-日本語:必要なものが与えられませんでした。{self._target}が与えられました。
+        return f"""Essentials was not given. given {self.target}
+日本語:必要なものが与えられませんでした。{self.target}が与えられました。
 additional message:
-{self._message}"""
+{self.message}"""
 
 
 class IState(Generic[_T], metaclass=ABCMeta):
