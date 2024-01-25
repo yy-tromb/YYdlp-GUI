@@ -74,13 +74,13 @@ def test_state_redudancy_bind():
     assert error2.value._message == "redudancy observer was given"
 
 # state.ReactiveState tests
+def formula(value0,value1):
+    return value0+value1
 
 @pytest.fixture(scope="function",autouse=True)
 def reactive_state_set():
     state0 = State(0)
     state1 = State(100)
-    def formula(value0,value1):
-        return value0+value1
     reactive_state = ReactiveState(
         formula=formula,
         reliance_states=(state0,state1))
@@ -100,3 +100,12 @@ def test_reactive_state_normal(reactive_state_set):
     state1.set(0)
     assert reactive_state.get() == 1+0
     assert reactive_state_bind_called == reactive_state.get()
+    
+def test_reactive_state_error(reactive_state_set):
+    reactive_state = reactive_state_set[0]
+    state0 = reactive_state_set[1]
+    state1 = reactive_state_set[2]
+    bind_1 = lambda value0,value1: value0+value1
+    reactive_state.bind(bind_1)
+    with pytest.raises(RedundancyError) as redudancy_error:
+        reactive_state.bind(bind_1)
