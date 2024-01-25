@@ -146,13 +146,8 @@ class ReactiveState(IState, Generic[_T]):
         formula: Callable[[*tuple[IState, ...]], _T],
         # This is Python3.11 feature.
         # Can't use in PyPy latest 3.10
-        reliance_states: tuple[IState] | None = None,
+        reliance_states: tuple[IState,...],
     ) -> None:
-        if reliance_states is None:
-            raise EssentialError(
-                target=reliance_states, message="reliance_states is essential."
-            )
-
         self.__reliances: tuple[IState] = reliance_states
         self.__value: _T = formula(*self.__reliances)
         self.__formula = formula
@@ -337,19 +332,19 @@ class Store(IStore):
     def ref(self, key: str) -> IStateRef | IReactiveStateRef:  # type: ignore
         pass
 
-    def refs(self, *key: str) -> tuple[IStateRef | IReactiveStateRef]:  # type: ignore
+    def refs(self, *key: str) -> tuple[IStateRef | IReactiveStateRef,...]:  # type: ignore
         pass
 
     def ref_s(self) -> IStateRef:  # type: ignore
         pass
 
-    def refs_s(self) -> tuple[IStateRef]:  # type: ignore
+    def refs_s(self) -> tuple[IStateRef,...]:  # type: ignore
         pass
 
     def ref_r(self) -> IReactiveStateRef:  # type: ignore
         pass
 
-    def refs_r(self) -> tuple[IReactiveStateRef]:  # type: ignore
+    def refs_r(self) -> tuple[IReactiveStateRef,...]:  # type: ignore
         pass
 
 
