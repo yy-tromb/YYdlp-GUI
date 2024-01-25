@@ -63,15 +63,11 @@ def test_state_redudancy_bind():
     assert state.get() == 0
     with pytest.raises(RedundancyError) as error:
         state.bind(bind_1)
-    assert error.value._target[0].__name__ == "bind_1"
-    assert error.value._message == "redudancy observer was given"
+    assert error.value.target[0].__name__ == "bind_1"
     with pytest.raises(RedundancyError) as error2:
         state.bind(bind_2, bind_1)
-    assert (
-        error2.value._target[0].__name__ == "bind_2"
-        and error2.value._target[1].__name__ == "bind_1"
-    )
-    assert error2.value._message == "redudancy observer was given"
+    assert error2.value.target[0].__name__ == "bind_2"
+    assert error2.value.target[1].__name__ == "bind_1"
 
 # state.ReactiveState tests
 def formula(value0,value1):
@@ -105,7 +101,14 @@ def test_reactive_state_error(reactive_state_set):
     reactive_state = reactive_state_set[0]
     state0 = reactive_state_set[1]
     state1 = reactive_state_set[2]
-    bind_1 = lambda value0,value1: value0+value1
+    called_value = reactive_state.get()
+    bind_1 = lambda value: called_value = value
+    bind_2 = lambda v: v
     reactive_state.bind(bind_1)
     with pytest.raises(RedundancyError) as redudancy_error:
-        reactive_state.bind(bind_1)
+        reactive_state.bind(bind_1,bind_2)
+    assert redudancy_error.target[0].__name__ == "bind_1"
+    with pytest.raises(RedundancyError) as redudancy_error
+        reactive_state.bind(bind_2,bind_1)
+    assert redudancy_error.target[0].__name__ == "bind_2"
+    assert redudancy_error.target[1].__name__ == "bind_1"
