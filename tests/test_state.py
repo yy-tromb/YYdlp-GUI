@@ -97,7 +97,7 @@ def test_reactive_state_normal(reactive_state_set):
     assert reactive_state.get() == 1+0
     assert reactive_state_bind_called == reactive_state.get()
     
-def test_reactive_state_error(reactive_state_set):
+def test_reactive_state_errors(reactive_state_set):
     reactive_state = reactive_state_set[0]
     state0 = reactive_state_set[1]
     state1 = reactive_state_set[2]
