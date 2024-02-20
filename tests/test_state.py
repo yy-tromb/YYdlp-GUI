@@ -112,3 +112,7 @@ def test_reactive_state_errors(reactive_state_set):
         reactive_state.bind(bind_2,bind_1)
     assert redudancy_error.target[0].__name__ == "bind_2"
     assert redudancy_error.target[1].__name__ == "bind_1"
+
+class TestReactiveState:
+    def __init__():
+        pass
