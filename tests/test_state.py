@@ -114,5 +114,22 @@ def test_reactive_state_errors(reactive_state_set):
     assert redudancy_error.target[1].__name__ == "bind_1"
 
 class TestReactiveState:
-    def __init__():
+
+    def formula_1(self,value0,value1):
+        return value0,value1
+    
+    def bind1_assert_value(value):
+        assert value == ( self.state0.get() + self.state1.get() )
+        
+    def fixture_1():
+        self.state0 = State(0)
+        self.state1 = State(100)
+        self.rs = ReactiveState(
+            formula=self.formula_1,
+            reliance_states=(self.state0,self.state1))
+
+    def __init__(self):
+        self.fixture_1()
+    
+    def test_1():
         pass
