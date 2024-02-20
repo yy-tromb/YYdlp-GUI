@@ -82,21 +82,6 @@ def reactive_state_set():
         reliance_states=(state0,state1))
     return (reactive_state,state0,state1)
 
-def test_reactive_state_normal(reactive_state_set):
-    reactive_state = reactive_state_set[0]
-    state0 = reactive_state_set[1]
-    state1 = reactive_state_set[2]
-    reactive_state.bind(lambda value: assert value == state0.get() + state1.get())
-    reactive_state_bind_called = reactive_state.get()
-    reactive_state.bind(lambda value: reactive_state_bind_called = value)
-    assert reactive_state.get() == 0+100
-    state0.set(1)
-    assert reactive_state.get() == 1+100
-    assert reactive_state_bind_called == reactive_state.get()
-    state1.set(0)
-    assert reactive_state.get() == 1+0
-    assert reactive_state_bind_called == reactive_state.get()
-    
 def test_reactive_state_errors(reactive_state_set):
     reactive_state = reactive_state_set[0]
     state0 = reactive_state_set[1]
@@ -120,6 +105,9 @@ class TestReactiveState:
     
     def bind1_assert_value(value):
         assert value == ( self.state0.get() + self.state1.get() )
+
+    def bind1_assert_called_value(value):
+        self.called_value = value
         
     def fixture_1():
         self.state0 = State(0)
@@ -127,9 +115,20 @@ class TestReactiveState:
         self.rs = ReactiveState(
             formula=self.formula_1,
             reliance_states=(self.state0,self.state1))
+        rs.bind(bind1_assert_value)
+        rs.bind(bind1_assert_called_value)
 
     def __init__(self):
         self.fixture_1()
     
     def test_1():
-        pass
+        rs = self.rs
+        state0 = self.state0
+        state1 = self.state1
+        assert rs.get() = 0+100
+        state0.set(1)
+        assert rs.get() == 1+100
+        assert self.called_value == rs.get()
+        state1.set(0)
+        assert rs.get() == 1+0
+        assert self.called_value == rs.get()
