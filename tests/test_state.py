@@ -70,34 +70,6 @@ def test_state_redudancy_bind():
     assert error2.value.target[1].__name__ == "bind_1"
 
 # state.ReactiveState tests
-def formula(value0,value1):
-    return value0+value1
-
-@pytest.fixture(scope="function",autouse=True)
-def reactive_state_set():
-    state0 = State(0)
-    state1 = State(100)
-    reactive_state = ReactiveState(
-        formula=formula,
-        reliance_states=(state0,state1))
-    return (reactive_state,state0,state1)
-
-def test_reactive_state_errors(reactive_state_set):
-    reactive_state = reactive_state_set[0]
-    state0 = reactive_state_set[1]
-    state1 = reactive_state_set[2]
-    called_value = reactive_state.get()
-    bind_1 = lambda value: called_value = value
-    bind_2 = lambda v: v
-    reactive_state.bind(bind_1)
-    with pytest.raises(RedundancyError) as redudancy_error:
-        reactive_state.bind(bind_1,bind_2)
-    assert redudancy_error.target[0].__name__ == "bind_1"
-    with pytest.raises(RedundancyError) as redudancy_error
-        reactive_state.bind(bind_2,bind_1)
-    assert redudancy_error.target[0].__name__ == "bind_2"
-    assert redudancy_error.target[1].__name__ == "bind_1"
-
 class TestReactiveState:
 
     def formula_1(self,value0,value1):
@@ -108,7 +80,10 @@ class TestReactiveState:
 
     def bind1_assert_called_value(value):
         self.called_value = value
-        
+
+    def binde1_nothing():
+        pass
+
     def fixture_1():
         self.state0 = State(0)
         self.state1 = State(100)
@@ -119,9 +94,10 @@ class TestReactiveState:
         rs.bind(bind1_assert_called_value)
 
     def __init__(self):
-        self.fixture_1()
+        pass
     
     def test_1():
+        self.fixture_1()
         rs = self.rs
         state0 = self.state0
         state1 = self.state1
@@ -132,3 +108,15 @@ class TestReactiveState:
         state1.set(0)
         assert rs.get() == 1+0
         assert self.called_value == rs.get()
+
+    def test_with_errors_1():
+        rs = self.rs
+        state0 = self.state0
+        state1 = self.state1
+        with pytest.raises(RedundancyError) as redudancy_error:
+            reactive_state.bind(self.bind1_assert_value,self.binde1_nothing)
+        assert redudancy_error.target[0].__name__ == "bind1_assert_value"
+        with pytest.raises(RedundancyError) as redudancy_error
+            reactive_state.bind(self.binde1_nothing,self.bind1_assert_value)
+        assert redudancy_error.target[0].__name__ == "binde1_nothing"
+        assert redudancy_error.target[1].__name__ == "bind1_assert_value"
