@@ -75,6 +75,11 @@ class TestState:
         
     def bind_assert_called_value(value):
         self.called_value = value
+        
+    def __init__():
+        pass
+    
+    
 
 # state.ReactiveState tests
 class TestReactiveState:
