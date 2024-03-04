@@ -69,19 +69,26 @@ def test_state_redudancy_bind():
     assert error2.value.target[0].__name__ == "bind_2"
     assert error2.value.target[1].__name__ == "bind_1"
 
+class TestState:
+    def bind_assert_value(value):
+        assert value == self.value_now
+        
+    def bind_assert_called_value(value):
+        self.called_value = value
+
 # state.ReactiveState tests
 class TestReactiveState:
 
     def formula_1(self,value0,value1):
         return value0,value1
     
-    def bind1_assert_value(value):
+    def bind_assert_value(value):
         assert value == ( self.state0.get() + self.state1.get() )
 
-    def bind1_assert_called_value(value):
+    def bind_assert_called_value(value):
         self.called_value = value
 
-    def binde1_nothing():
+    def bind_err_nothing():
         pass
 
     def fixture_1():
@@ -90,8 +97,8 @@ class TestReactiveState:
         self.rs = ReactiveState(
             formula=self.formula_1,
             reliance_states=(self.state0,self.state1))
-        rs.bind(bind1_assert_value)
-        rs.bind(bind1_assert_called_value)
+        rs.bind(bind_assert_value)
+        rs.bind(bind_assert_called_value)
 
     def __init__(self):
         pass
@@ -114,9 +121,9 @@ class TestReactiveState:
         state0 = self.state0
         state1 = self.state1
         with pytest.raises(RedundancyError) as redudancy_error:
-            reactive_state.bind(self.bind1_assert_value,self.binde1_nothing)
-        assert redudancy_error.target[0].__name__ == "bind1_assert_value"
+            reactive_state.bind(self.bind_assert_value,self.bind_err_nothing)
+        assert redudancy_error.target[0].__name__ == "bind_assert_value"
         with pytest.raises(RedundancyError) as redudancy_error
-            reactive_state.bind(self.binde1_nothing,self.bind1_assert_value)
-        assert redudancy_error.target[0].__name__ == "binde1_nothing"
-        assert redudancy_error.target[1].__name__ == "bind1_assert_value"
+            reactive_state.bind(self.bind_err_nothing,self.bind_assert_value)
+        assert redudancy_error.target[0].__name__ == "bind_err_nothing"
+        assert redudancy_error.target[1].__name__ == "bind_assert_value"
