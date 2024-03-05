@@ -100,12 +100,25 @@ class TestState:
         state.set(value1)
         assert state.get() == value1
         assert self.called_value == value1
+        
+    @pytest.mark.parametrize(
+    ("value1"),
+    [0, "init", (), [], {}, set()],
+    )
+    def test_state_without_arg(value1):
+        state = State()
+        self.value_now = None
+        assert state.get() is None
+        state.bind(self.bind_assert_value,self.bind_called_value)
+        state.set(value1)
+        assert state.get() == value1
+        assert self.called_value == value1
 
 # state.ReactiveState tests
 class TestReactiveState:
 
     def formula_1(self,value0,value1):
-        return value0,value1
+        return value0+value1
     
     def bind_assert_value(value):
         assert value == ( self.state0.get() + self.state1.get() )
