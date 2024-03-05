@@ -105,7 +105,7 @@ class TestState:
     ("value1"),
     [0, "init", (), [], {}, set()],
     )
-    def test_state_without_arg(value1):
+    def test_without_args(value1):
         state = State()
         self.value_now = None
         assert state.get() is None
