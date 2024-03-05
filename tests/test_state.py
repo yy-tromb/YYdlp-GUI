@@ -7,13 +7,13 @@ from YYdlp_GUI.state import RedundancyError, EssentialError, State, ReactiveStat
 class TestState:
     def bind_assert_value(value):
         assert value == self.value_now
-        
+
     def bind_called_value(value):
         self.called_value = value
-        
+
     def __init__():
         pass
-    
+
     @pytest.mark.parametrize(
     ("value0", "value1"),
     [
@@ -35,7 +35,7 @@ class TestState:
         state.set(value1)
         assert state.get() == value1
         assert self.called_value == value1
-        
+
     @pytest.mark.parametrize(
     ("value1"),
     [0, "init", (), [], {}, set()],
@@ -87,7 +87,7 @@ class TestReactiveState:
 
     def __init__(self):
         pass
-    
+
     def test_1():
         self.fixture_1()
         rs = self.rs
@@ -112,7 +112,7 @@ class TestReactiveState:
             reactive_state.bind(self.bind_err_nothing,self.bind_assert_value)
         assert redudancy_error.target[0].__name__ == "bind_err_nothing"
         assert redudancy_error.target[1].__name__ == "bind_assert_value"
-        
+
 class TestStore:
     def __init__():
         pass
