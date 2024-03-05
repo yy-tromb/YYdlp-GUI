@@ -114,6 +114,18 @@ class TestState:
         assert state.get() == value1
         assert self.called_value == value1
 
+    def test_state_redudancy_bind():
+        state = State()
+        self.value_now = None
+        state.bind(self.bind_assert_value,self.bind_called_value)
+        with pytest.raises(RedundancyError) as error:
+            state.bind(self.bind_assert_value)
+        assert error.value.target[0].__name__ == "bind_assert_value"
+        with pytest.raises(RedundancyError) as error2:
+            state.bind(self.bind_called_value, self.bind_assert_value)
+        assert error2.value.target[0].__name__ == "bind_called_value"
+        assert error2.value.target[1].__name__ == "bind_assert_value"
+
 # state.ReactiveState tests
 class TestReactiveState:
 
