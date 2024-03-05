@@ -112,3 +112,7 @@ class TestReactiveState:
             reactive_state.bind(self.bind_err_nothing,self.bind_assert_value)
         assert redudancy_error.target[0].__name__ == "bind_err_nothing"
         assert redudancy_error.target[1].__name__ == "bind_assert_value"
+        
+class TestStore:
+    def __init__():
+        pass
