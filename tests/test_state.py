@@ -90,7 +90,7 @@ class TestReactiveState:
     def bind_assert_value(value):
         assert value == ( self.state0.get() + self.state1.get() )
 
-    def bind_assert_called_value(value):
+    def bind_called_value(value):
         self.called_value = value
 
     def bind_err_nothing():
@@ -102,8 +102,8 @@ class TestReactiveState:
         self.rs = ReactiveState(
             formula=self.formula_1,
             reliance_states=(self.state0,self.state1))
-        rs.bind(bind_assert_value)
-        rs.bind(bind_assert_called_value)
+        rs.bind(self.bind_assert_value)
+        rs.bind(self.bind_called_value)
 
     def __init__(self):
         pass
