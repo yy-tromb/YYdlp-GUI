@@ -73,13 +73,33 @@ class TestState:
     def bind_assert_value(value):
         assert value == self.value_now
         
-    def bind_assert_called_value(value):
+    def bind_called_value(value):
         self.called_value = value
         
     def __init__():
         pass
     
-    
+    @pytest.mark.parametrize(
+    ("value0", "value1"),
+    [
+        (None, 0),
+        (0, 2),
+        ("init", "2nd"),
+        ("init", None),
+        ((), (0, "", ())),
+        ([], [0, 1, 2]),
+        ({}, {"now": "second"}),
+    ],
+    )
+    def test_normal(value0,value1):
+        state = State(value0)
+        self.value_now = value0
+        assert state.get() == value0
+        state.bind(self.bind_assert_value,self.bind_called_value)
+        self.value_now = value1
+        state.set(value1)
+        assert state.get() == value1
+        assert self.called_value == value1
 
 # state.ReactiveState tests
 class TestReactiveState:
