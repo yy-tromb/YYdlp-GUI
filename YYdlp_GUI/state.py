@@ -266,7 +266,7 @@ class Store(IStore):
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
         for data in data_sets:
             if data[0] in self.__states:
-                raise RedundancyError(f"key:{key} has already existed.")
+                raise RedundancyError(f"key:{data[0]} has already existed.")
             else:
                 self.__states[data[0]] = ReactiveState(data[1], data[2])
 
