@@ -20,7 +20,8 @@ class RedundancyError(Exception):
         self.target = target
 
     def __str__(self) -> str:
-        return f"""{self.target} is Redundancy.
+        return f"""
+{self.target} is Redundancy.
 日本語:{self.target}は重複しています。
 additional message:
 {self.message}"""
@@ -32,7 +33,8 @@ class EssentialError(Exception):
         self.target = target
 
     def __str__(self) -> str:
-        return f"""Essentials was not given. given {self.target}
+        return f"""
+Essentials was not given. given {self.target}
 日本語:必要なものが与えられませんでした。{self.target}が与えられました。
 additional message:
 {self.message}"""
