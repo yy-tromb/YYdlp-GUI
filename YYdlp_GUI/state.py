@@ -220,7 +220,7 @@ StateDataType: TypeAlias = tuple[str, Any | None]
 ReactiveStateDataType: TypeAlias = tuple[
     str,
     Callable[[*tuple[IState, ...]], Any],
-    # This is Python3.11 feature.
+    # *tuple[] is Python3.11 feature.
     # Can't use in PyPy latest 3.10
     tuple[IState, ...],
 ]
@@ -251,7 +251,7 @@ class Store(IStore):
     def state(self, *data_pairs: StateDataType) -> None:
         for pair in data_pairs:
             if pair[0] in self.__states:
-                raise KeyError()
+                raise RedudancyError(target=pair[0],message=f"""key:"{}" has already existed.""")
             else:
                 self.__states[pair[0]] = State(pair[1])
 
@@ -261,14 +261,14 @@ class Store(IStore):
         """
         for key in keys:
             if key in self.__states:
-                raise RedundancyError(f"key:{key} has already existed.")
+                raise RedundancyError(target=key,message=f"""key:"{key}" has already existed.""")
             else:
                 self.__states[key] = State(None)
 
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
         for data in data_sets:
             if data[0] in self.__states:
-                raise RedundancyError(f"key:{data[0]} has already existed.")
+                raise RedundancyError(target=data[0],message=f"""key:"{data[0]}" has already existed.""")
             else:
                 self.__states[data[0]] = ReactiveState(data[1], data[2])
 
@@ -279,12 +279,9 @@ class Store(IStore):
         state_keys: tuple[str] | None = None,
         reactives: tuple[ReactiveStateDataType, ...] | None = None,
     ) -> IStore:
-        if name in self.__stores:
-            raise KeyError()
-        else:
-            store = Store(name, states, state_keys, reactives)
-            self.__stores[name] = store
-            return store
+        store = Store(name, states, state_keys, reactives)
+        self.__stores[name] = store
+        return store
 
     def remove(self, *keys: str) -> None:
         for key in keys:
@@ -294,27 +291,31 @@ class Store(IStore):
         for name in names:
             del self.__stores[name]
 
-    def ondrop(
-        self, names: tuple[str], ondrops: tuple[Callable[[], None], ...]
+    def on_drop(
+        self, names: tuple[str], on_drops: tuple[Callable[[], None], ...]
     ) -> None:
         for name in names:
-            self.__stores[name].ondrop_self(*ondrops)
+            self.__stores[name].on_drop_self(*on_drops)
 
-    def ondrop_self(self, *ondrops: Callable[[], None]) -> None:
-        for ondrop in ondrops:
-            if ondrop in self.__ondrops:
-                raise ValueError()
+    def on_drop_self(self, *on_drops: Callable[[], None]) -> None:
+        for on_drop in on_drops:
+            if on_drop in self.__on_drops:
+                raise RedundancyError(target=ondrop)
             else:
-                self.__ondrops.add(ondrop)
+                self.__on_drops.add(ondrop)
 
     def __del__(self):
-        for ondrop in self.__ondrops:
-            ondrop()
+        for on_drop in self.__on_drops:
+            on_drop()
 
     def bind(
-        self, states: tuple[str], observers: tuple[Callable[[Any | None], None]]
+        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
     ) -> None:
-        pass
+        for key in keys:
+            if key in self.__states:
+                self.__states[key].bind(observers)
+            else:
+                raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
 
     def bind_store(self, stores: tuple[str], *observers: Callable) -> None:
         pass
