@@ -121,7 +121,7 @@ Thanks to ForestMountain1234
                 target=tuple(
                     observer for observer in observers if observer in self.__observers
                 ),
-                message="redudancy observer was given",
+                message="redudancy observer was given.",
             )
         # --original comment--
         # 変更時に呼び出す為の集合に登録
@@ -189,7 +189,7 @@ class ReactiveState(IState, Generic[_T]):
                 target=tuple(
                     observer for observer in observers if observer in self.__observers
                 ),
-                message="redudancy observer was given",
+                message="redudancy observer was given.",
             )
         # --original comment--
         # 変更時に呼び出す為の集合に登録
@@ -317,11 +317,21 @@ class Store(IStore):
             else:
                 raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
 
-    def bind_store(self, stores: tuple[str], *observers: Callable) -> None:
-        pass
+    def bind_store(self, keys: tuple[str], *observers: Callable[[Store],None]) -> None:
+        for key in keys:
+            if key in self.__stores:
+                self.__stores[key].bind_self(*observers)
 
-    def bind_self(self, *observers: Callable) -> None:
-        pass
+    def bind_self(self, *observers: Callable[[Store],None]) -> None:
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given.",
+            )
 
     def unbind(self) -> None:
         pass
