@@ -404,8 +404,8 @@ class Store(IStore):
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
 
-    def refs(self, *keys: str) -> IStateRefs:  # type: ignore
-        pass
+    def refs(self, *keys: str) -> IStateRefs:
+        return StateRefs(store=store,keys)
 
 class StateRefs(IStateRef, Generic[_T]):
     def __init__(
