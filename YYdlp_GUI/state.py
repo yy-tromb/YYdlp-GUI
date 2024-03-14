@@ -357,14 +357,27 @@ class Store(IStore):
 
     def unbind(self,keys: tuple[str],
                observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
-        pass
+        for key in keys:
+            if key in self.__states:
+                self.__states[key].unbind(*observers)
+            else:
+                raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
     
     def unbind_store(self,keys: tuple[str],
                observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
-        pass
+        for key in keys:
+            if key in self.__stores:
+                self.__stores[key].unbind_self(*observers)
+            else:
+                raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
     
-    def unbind_self(self) -> None:
-        pass
+    def unbind_self(self,*observers: Callable[[Store],None]) -> None:
+        if observers is ():
+            self.__observers.clear()
+        else:
+            self_observers = self.__observers # faster
+            for observer in observers:
+                self_observers.remove(observer)
 
     def set(self) -> None:
         pass
