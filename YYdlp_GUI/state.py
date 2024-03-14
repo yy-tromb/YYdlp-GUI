@@ -151,7 +151,7 @@ class ReactiveState(IState, Generic[_T]):
         reliance_states: tuple[IState,...],
     ) -> None:
         self.__reliances: tuple[IState] = reliance_states
-        self.__value: _T = formula(*self.__reliances)
+        self.__value: _T = formula(reliances_states)
         self.__formula = formula
         self.__observers: set[Callable[[_T], None]] = set()
 
@@ -237,7 +237,7 @@ class Store(IStore):
         # initialise object
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: dict[str, IStore] = {}
-        self.__ondrops: set[Callable[[], None]] = set()
+        self.__on_drops: set[Callable[[], None]] = set()
         self.__observers: set[Callable[[], None]] = set()
         # process arguments
         self.name: str = name
@@ -297,12 +297,13 @@ class Store(IStore):
         for name in names:
             self.__stores[name].on_drop_self(*on_drops)
 
-    def on_drop_self(self, *on_drops: Callable[[], None]) -> None:
-        for on_drop in on_drops:
-            if on_drop in self.__on_drops:
-                raise RedundancyError(target=ondrop)
-            else:
-                self.__on_drops.add(ondrop)
+    def on_drop_self(self, *on_drops: tuple[Callable[[], None]]) -> None:
+        prev_len = len(self.__on_drops)
+        self.__on_drops.update(on_drops)
+        if len(self.__on_drops) < prev_len + len(on_drops):
+            raise RedundancyError(target=tuple(
+                on_drop for on_drop in on_drops if on_drop in self.__on_drops
+                ))
 
     def __del__(self):
         for on_drop in self.__on_drops:
@@ -313,11 +314,11 @@ class Store(IStore):
     ) -> None:
         for key in keys:
             if key in self.__states:
-                self.__states[key].bind(observers)
+                self.__states[key].bind(*observers)
             else:
                 raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
 
-    def bind_store(self, keys: tuple[str], *observers: Callable[[Store],None]) -> None:
+    def bind_store(self, keys: tuple[str], observers: tuple[Callable[[Store],None]]) -> None:
         for key in keys:
             if key in self.__stores:
                 self.__stores[key].bind_self(*observers)
@@ -333,7 +334,15 @@ class Store(IStore):
                 message="redudancy observer was given.",
             )
 
-    def unbind(self) -> None:
+    def unbind(self,keys: tuple[str],
+               observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
+        pass
+    
+    def unbind_store(self,keys: tuple[str],
+               observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
+        pass
+    
+    def unbind_self(self) -> None:
         pass
 
     def set(self) -> None:
