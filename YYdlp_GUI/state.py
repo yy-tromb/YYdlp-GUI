@@ -401,11 +401,20 @@ class Store(IStore):
                 else if type(self_states[key]) is not State:
                     raise TypeError(self_states[key])
 
+    def get(self,key: str) -> Any:
+        return self.__states[key].get()
+
+    def gets(self,keys: tuple[str]) -> tuple[Any]:
+        return ( self.__states[key].get() for key in keys )
+
+    def gets_dict(self,keys: tuple[str]) -> Any:
+        return {(key,self.__states[key].get()) for key in keys }
+
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
 
     def refs(self, *keys: str) -> IStateRefs:
-        return StateRefs(store=store,keys)
+        return StateRefs(store=store,keys=keys)
 
 class StateRefs(IStateRef):
     def __init__(
@@ -416,11 +425,11 @@ class StateRefs(IStateRef):
         self.__store: IStore = store
         self.__keys: tuple[str] = keys
 
-    def keys():
+    def keys(self) -> tuple[str]:
         return self.__keys
 
-    def get(self) -> None:
-        pass
+    def gets(self) -> tuple[h]:
+        return self.__store.gets_pair(self.__keys)
 
     def bind(self, keys: tuple[str],observers: tuple[Callable[[Any | None], None]]) -> None:
         pass
