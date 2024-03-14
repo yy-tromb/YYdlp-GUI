@@ -250,8 +250,6 @@ class Store(IStore):
 
     def state(self, *data_pairs: StateDataType) -> None:
         for pair in data_pairs:
-            if self.__states.setdefault(pair[0],pair[1]) != pair[1]:
-                raise RedudancyError(target=pair[0],message=f"""key:"{}" has already existed.""")
             if pair[0] in self.__states:
                 raise RedudancyError(target=pair[0],message=f"""key:"{}" has already existed.""")
             else:
