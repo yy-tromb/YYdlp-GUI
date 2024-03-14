@@ -424,6 +424,7 @@ class StateRefs(IStateRef):
     ) -> None:
         self.__store: IStore = store
         self.__keys: tuple[str] = keys
+        self.__observers
 
     def keys(self) -> tuple[str]:
         return self.__keys
@@ -435,6 +436,15 @@ class StateRefs(IStateRef):
         self.__store.bind(keys,observers)
 
     def bind_self(self,*observers: Callable)
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given.",
+            )
 
     def _update(self) -> None:
         pass
