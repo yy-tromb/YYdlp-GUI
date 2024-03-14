@@ -404,33 +404,17 @@ class Store(IStore):
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
 
-    def ref(self, key: str) -> IStateRef | IReactiveStateRef:  # type: ignore
+    def refs(self, *keys: str) -> IStateRefs:  # type: ignore
         pass
 
-    def refs(self, *key: str) -> tuple[IStateRef | IReactiveStateRef,...]:  # type: ignore
-        pass
-
-    def ref_s(self) -> IStateRef:  # type: ignore
-        pass
-
-    def refs_s(self) -> tuple[IStateRef,...]:  # type: ignore
-        pass
-
-    def ref_r(self) -> IReactiveStateRef:  # type: ignore
-        pass
-
-    def refs_r(self) -> tuple[IReactiveStateRef,...]:  # type: ignore
-        pass
-
-
-class StateRef(IStateRef, Generic[_T]):
+class StateRefs(IStateRef, Generic[_T]):
     def __init__(
         self,
         store: IStore,
-        key: str,
+        keys: tuple[str],
     ) -> None:
         self.__store: IStore = store
-        self.__key: str = key
+        self.__keys: tuple[str] = keys
 
     def get(self) -> None:
         pass
@@ -440,16 +424,5 @@ class StateRef(IStateRef, Generic[_T]):
 
     def _update(self) -> None:
         pass
-
-
-class ReactiveStateRef(IReactiveStateRef, Generic[_T]):
-    def __init__(
-        self,
-        store: IStore,
-        key: str,
-    ) -> None:
-        self.__store: IStore = store
-        self.__key: str = key
-
 
 StateType: TypeAlias = IState | State | ReactiveState
