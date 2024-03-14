@@ -69,6 +69,10 @@ class IState(Generic[_T], metaclass=ABCMeta):
                                 RedudancyError is raised.
         """
         raise NotImplementedError()
+        
+    @abstractmethod
+    def unbind(self,*observers: Callable[[_T | None], None]) -> None:
+        raise NotImplementedError()
 
 
 class State(IState, Generic[_T]):
@@ -104,7 +108,8 @@ Thanks to ForestMountain1234
         """
         if self.__value != new_value:
             self.__value = new_value
-            for observer in self.__observers:
+            self_observers = self.__observers # faster
+            for observer in self__observers:
                 observer(self.__value)
 
     def bind(self, *observers: Callable[[_T | None], None]) -> None:
@@ -126,6 +131,13 @@ Thanks to ForestMountain1234
         # --original comment--
         # 変更時に呼び出す為の集合に登録
 
+        def unbind(self,*observers: Callable[[_T | None], None]):
+            if observers is ():
+                self.__observers.clear()
+            else:
+                self_observers = self.__observers # faster
+                for observer in observers:
+                    self_observers.remove(observer)
 
 class ReactiveState(IState, Generic[_T]):
     """
@@ -170,7 +182,8 @@ class ReactiveState(IState, Generic[_T]):
         new_value = self.__formula(*self.__reliances)
         if self.__value != new_value:
             self.__value = new_value
-            for observer in self.__observers:
+            self_observers = self.__observers # faster
+            for observer in self__observers:
                 observer(new_value)
                 # --original comment--
                 # 変更時に各observerに通知する
@@ -193,6 +206,14 @@ class ReactiveState(IState, Generic[_T]):
             )
         # --original comment--
         # 変更時に呼び出す為の集合に登録
+
+    def unbind(self,*observers: Callable[[_T | None], None]):
+        if observers is ():
+            self.__observers.clear()
+        else:
+            self_observers = self.__observers # faster
+            for observer in observers:
+                self_observers.remove(observer)
 
 @dataclass
 class StoreKey:
