@@ -389,8 +389,17 @@ class Store(IStore):
             for observer in observers:
                 self_observers.remove(observer)
 
-    def set(self) -> None:
-        pass
+    def set(self,keys: tuple[str], value: Any) -> None:
+        self_states = self.__states # faster
+        for key in keys:
+            if ( key in self_states and
+                 type(self_states[key]) is State ):
+                self_states[key].set(value)
+            else:
+                if key not in self_states:
+                    raise KeyError(key)
+                else if type(self_states[key]) is not State:
+                    raise TypeError(self_states[key])
 
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
