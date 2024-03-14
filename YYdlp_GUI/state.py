@@ -407,7 +407,7 @@ class Store(IStore):
     def refs(self, *keys: str) -> IStateRefs:
         return StateRefs(store=store,keys)
 
-class StateRefs(IStateRef, Generic[_T]):
+class StateRefs(IStateRef):
     def __init__(
         self,
         store: IStore,
@@ -416,11 +416,16 @@ class StateRefs(IStateRef, Generic[_T]):
         self.__store: IStore = store
         self.__keys: tuple[str] = keys
 
+    def keys():
+        return self.__keys
+
     def get(self) -> None:
         pass
 
-    def bind(self, observers: list[Callable[[_T | None], None]]) -> None:
+    def bind(self, keys: tuple[str],observers: tuple[Callable[[Any | None], None]]) -> None:
         pass
+
+    def bind_self(self,*observers: Callable)
 
     def _update(self) -> None:
         pass
