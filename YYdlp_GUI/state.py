@@ -408,7 +408,7 @@ class Store(IStore):
         return ( self.__states[key].get() for key in keys )
 
     def gets_dict(self,keys: tuple[str]) -> dict[str,Any]:
-        return {(key:self.__states[key].get()) for key in keys }
+        return {key:self.__states[key].get() for key in keys }
 
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
@@ -433,6 +433,9 @@ class StateRefs(IStateRef):
         return self.__store.gets_dict(self.__keys)
 
     def bind(self, keys: tuple[str],observers: tuple[Callable[[Any | None], None]]) -> None:
+        for key in keys:
+            if key not in self.__keys:
+                raise KeyError(key)
         self.__store.bind(keys,observers)
 
     def bind_self(self,*observers: Callable)
