@@ -359,6 +359,8 @@ class Store(IStore):
                 self_stores[key].bind_self(*observers)
 
     def bind_self(self, *observers: Callable[[IStore],None]) -> None:
+        if self.__is_enabled_bind_self is False:
+            self.__enabled_bind_self()
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
