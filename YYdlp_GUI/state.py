@@ -1,15 +1,6 @@
-from typing import (
-    TypeVar,
-    Generic,
-    Callable,
-    Literal,
-    TypeAlias,
-    Any,
-    Final,
-    Unpack
-)
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
+from typing import Any, Callable, Final, Generic, Literal, TypeAlias, TypeVar, Unpack
 
 _T = TypeVar("_T")
 
@@ -69,9 +60,9 @@ class IState(Generic[_T], metaclass=ABCMeta):
                                 RedudancyError is raised.
         """
         raise NotImplementedError()
-        
+
     @abstractmethod
-    def unbind(self,*observers: Callable[[_T | None], None]) -> None:
+    def unbind(self, *observers: Callable[[_T | None], None]) -> None:
         raise NotImplementedError()
 
 
@@ -108,7 +99,7 @@ Thanks to ForestMountain1234
         """
         if self.__value != new_value:
             self.__value = new_value
-            self_observers = self.__observers # faster
+            self_observers = self.__observers  # faster
             for observer in self_observers:
                 observer(self.__value)
 
@@ -131,13 +122,15 @@ Thanks to ForestMountain1234
         # --original comment--
         # 変更時に呼び出す為の集合に登録
 
-        def unbind(self,*observers: Callable[[_T | None], None]):
-            if observers is ():
-                self.__observers.clear()
-            else:
-                self_observers = self.__observers # faster
-                for observer in observers:
-                    self_observers.remove(observer)
+    def unbind(self, *observers: Callable[[_T | None], None]) -> None:
+        """unbind observer functions."""
+        if not observers:
+            self.__observers.clear()
+        else:
+            self_observers = self.__observers  # faster
+            for observer in observers:
+                self_observers.remove(observer)
+
 
 class ReactiveState(IState, Generic[_T]):
     """
@@ -157,13 +150,13 @@ class ReactiveState(IState, Generic[_T]):
 
     def __init__(
         self,
-        formula: Callable[[*tuple[IState, ...]], _T],
+        formula: Callable[[*tuple[Any,...]], _T],
         # This is Python3.11 feature.
         # Can't use in PyPy latest 3.10
-        reliance_states: tuple[IState,...],
+        reliance_states: tuple[IState, ...],
     ) -> None:
         self.__reliances: tuple[IState] = reliance_states
-        self.__value: _T = formula(reliances_states)
+        self.__value: _T = formula(*(reliance.get() for reliance in self.__reliances))
         self.__formula = formula
         self.__observers: set[Callable[[_T], None]] = set()
 
@@ -179,10 +172,10 @@ class ReactiveState(IState, Generic[_T]):
     def __update(self) -> None:
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
-        new_value = self.__formula(*self.__reliances)
+        new_value = self.__formula(*(reliance.get() for reliance in self.__reliances ))
         if self.__value != new_value:
             self.__value = new_value
-            self_observers = self.__observers # faster
+            self_observers = self.__observers  # faster
             for observer in self_observers:
                 observer(new_value)
                 # --original comment--
@@ -207,13 +200,14 @@ class ReactiveState(IState, Generic[_T]):
         # --original comment--
         # 変更時に呼び出す為の集合に登録
 
-    def unbind(self,*observers: Callable[[_T | None], None]):
-        if observers is ():
+    def unbind(self, *observers: Callable[[_T | None], None]):
+        if not observers:
             self.__observers.clear()
         else:
-            self_observers = self.__observers # faster
+            self_observers = self.__observers  # faster
             for observer in observers:
                 self_observers.remove(observer)
+
 
 @dataclass
 class StoreKey:
@@ -229,12 +223,51 @@ class IStore:
     ########################
 
 
-class IStateRef(IState, Generic[_T]):
+class IStateRefs(Generic[_T]):
     pass
 
 
-class IReactiveStateRef(IState, Generic[_T]):
-    pass
+class StateRefs(IStateRefs):
+    def __init__(
+        self,
+        store: IStore,
+        keys: tuple[str],
+    ) -> None:
+        self.__store: IStore = store
+        self.__keys: tuple[str] = keys
+        self.__observers: set[Callable] = set()
+        for key in keys:
+            store[key].bind(lambda _: self.__call_observer())
+
+    def keys(self) -> tuple[str]:
+        return self.__keys
+
+    def gets_dict(self) -> dict[str, Any]:
+        return self.__store.gets_dict(self.__keys)
+
+    def bind(
+        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
+    ) -> None:
+        for key in keys:
+            if key not in self.__keys:
+                raise KeyError(key)
+        self.__store.bind(keys, observers)
+
+    def bind_self(self, *observers: Callable):
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given.",
+            )
+
+    def __call_observer(self) -> None:
+        self_observers = self.__observers
+        for observer in self_observers:
+            observer(self)
 
 
 StateDataType: TypeAlias = tuple[str, Any | None]
@@ -254,7 +287,6 @@ class Store(IStore):
         states: tuple[StateDataType, ...] | None = None,
         state_keys: tuple[str] | None = None,
         reactives: tuple[ReactiveStateDataType, ...] | None = None,
-        use_bind_self: bool | None = False
     ) -> None:
         # initialise object
         self.__is_enabled_bind_self: bool = False
@@ -276,37 +308,43 @@ class Store(IStore):
             observer(self)
 
     def __enable_bind_self(self):
-        for state in self.__states
+        for state in self.__states:
             state.bind(lambda _: self.__call_observer())
         for store in self.__stores:
             store.bind(lambda _: self.__call_observer())
 
     def state(self, *data_pairs: StateDataType) -> None:
-        self_states = self.__states # faster
+        self_states = self.__states  # faster
         for pair in data_pairs:
             if pair[0] in self_states:
-                raise RedudancyError(target=pair[0],message=f"""key:"{}" has already existed.""")
+                raise RedundancyError(
+                    target=pair[0], message=f"""key:"{pair[0]}" has already existed."""
+                )
             else:
                 self_states[pair[0]] = State(pair[1])
                 if self.__is_enabled_bind_self:
-                    state.bind(self.__call_observer)
+                    self_states[pair[0]].bind(self.__call_observer)
 
     def add_state(self, *keys: str) -> None:
         """add_state
         This method is equal `store_instance.state(("key",None),("key2",))`
         """
-        self_states = self.__states # faster
+        self_states = self.__states  # faster
         for key in keys:
             if key in self_states:
-                raise RedundancyError(target=key,message=f"""key:"{key}" has already existed.""")
+                raise RedundancyError(
+                    target=key, message=f"""key:"{key}" has already existed."""
+                )
             else:
                 self_states[key] = State(None)
 
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
-        self_states = self.__states # faster
+        self_states = self.__states  # faster
         for data in data_sets:
             if data[0] in self_states:
-                raise RedundancyError(target=data[0],message=f"""key:"{data[0]}" has already existed.""")
+                raise RedundancyError(
+                    target=data[0], message=f"""key:"{data[0]}" has already existed."""
+                )
             else:
                 self_states[data[0]] = ReactiveState(data[1], data[2])
 
@@ -319,7 +357,9 @@ class Store(IStore):
     ) -> IStore:
         store = Store(name, states, state_keys, reactives)
         if name in self.__stores:
-            raise RedundancyError(target=name,f"""Store of name:"{name}" has already existed.""")
+            raise RedundancyError(
+                target=name, message=f"""Store of name:"{name}" has already existed."""
+            )
         else:
             self.__stores[name] = store
         return store
@@ -342,9 +382,11 @@ class Store(IStore):
         prev_len = len(self.__on_drops)
         self.__on_drops.update(on_drops)
         if len(self.__on_drops) < prev_len + len(on_drops):
-            raise RedundancyError(target=tuple(
-                on_drop for on_drop in on_drops if on_drop in self.__on_drops
-                ))
+            raise RedundancyError(
+                target=tuple(
+                    on_drop for on_drop in on_drops if on_drop in self.__on_drops
+                )
+            )
 
     def __del__(self):
         for on_drop in self.__on_drops:
@@ -353,20 +395,22 @@ class Store(IStore):
     def bind(
         self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
     ) -> None:
-        self_states = self.__states # faster
+        self_states = self.__states  # faster
         for key in keys:
             if key in self_states:
                 self_states[key].bind(*observers)
             else:
                 raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
 
-    def bind_store(self, keys: tuple[str], observers: tuple[Callable[[Store],None]]) -> None:
-        self_store = self.__stores # faster
+    def bind_store(
+        self, keys: tuple[str], observers: tuple[Callable[[IStore], None]]
+    ) -> None:
+        self_stores = self.__stores  # faster
         for key in keys:
             if key in self_stores:
                 self_stores[key].bind_self(*observers)
 
-    def bind_self(self, *observers: Callable[[IStore],None]) -> None:
+    def bind_self(self, *observers: Callable[[IStore], None]) -> None:
         if self.__is_enabled_bind_self is False:
             self.__enable_bind_self()
         prev_len = len(self.__observers)
@@ -379,97 +423,62 @@ class Store(IStore):
                 message="redudancy observer was given.",
             )
 
-    def unbind(self,keys: tuple[str],
-               observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
-        self_states = self.__states # faster
+    def unbind(
+        self,
+        keys: tuple[str],
+        observers: tuple[Callable[[Any | None | IStore], None]] | None = None,
+    ) -> None:
+        self_states = self.__states  # faster
         for key in keys:
             if key in self_states:
                 self_states[key].unbind(*observers)
             else:
                 raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
-    
-    def unbind_store(self,keys: tuple[str],
-               observers: tuple[Callable[[Any | None | Store],None]] | None = None) -> None:
-        self_stores = self.__stores # faster
+
+    def unbind_store(
+        self,
+        keys: tuple[str],
+        observers: tuple[Callable[[Any | None | IStore], None]] | None = None,
+    ) -> None:
+        self_stores = self.__stores  # faster
         for key in keys:
             if key in self_stores:
                 self_stores[key].unbind_self(*observers)
             else:
                 raise KeyError(f"""State or ReactiveState of "{key}" is not found.""")
-    
-    def unbind_self(self,*observers: Callable[[Store],None]) -> None:
-        if observers is ():
+
+    def unbind_self(self, *observers: Callable[[IStore], None]) -> None:
+        if not observers:
             self.__observers.clear()
         else:
-            self_observers = self.__observers # faster
+            self_observers = self.__observers  # faster
             for observer in observers:
                 self_observers.remove(observer)
 
-    def set(self,keys: tuple[str], value: Any) -> None:
-        self_states = self.__states # faster
+    def set(self, keys: tuple[str], value: Any) -> None:
+        self_states = self.__states  # faster
         for key in keys:
-            if ( key in self_states and
-                 type(self_states[key]) is State ):
+            if key in self_states and isinstance(self_states[key], State):
                 self_states[key].set(value)
-            else:
-                if key not in self_states:
-                    raise KeyError(key)
-                else if type(self_states[key]) is not State:
-                    raise TypeError(self_states[key])
+            elif key not in self_states:
+                raise KeyError(key)
+            elif not isinstance(self_states[key], State):
+                raise TypeError(self_states[key])
 
-    def get(self,key: str) -> Any:
+    def get(self, key: str) -> Any:
         return self.__states[key].get()
 
-    def gets(self,keys: tuple[str]) -> tuple[Any]:
-        return ( self.__states[key].get() for key in keys )
+    def gets(self, keys: tuple[str]) -> tuple[Any]:
+        return (self.__states[key].get() for key in keys)
 
-    def gets_dict(self,keys: tuple[str]) -> dict[str,Any]:
-        return {key:self.__states[key].get() for key in keys }
+    def gets_dict(self, keys: tuple[str]) -> dict[str, Any]:
+        return {key: self.__states[key].get() for key in keys}
 
     def get_store(self, name: str) -> IStore:
         return self.__stores[name]
 
     def refs(self, *keys: str) -> IStateRefs:
-        return StateRefs(store=store,keys=keys)
+        return StateRefs(store=self, keys=keys)
 
-class StateRefs(IStateRef):
-    def __init__(
-        self,
-        store: IStore,
-        keys: tuple[str],
-    ) -> None:
-        self.__store: IStore = store
-        self.__keys: tuple[str] = keys
-        self.__observers
-        for key in keys:
-            store[key].bind(lambda _:self.__call_observer())
-
-    def keys(self) -> tuple[str]:
-        return self.__keys
-
-    def gets_dict(self) -> dict[str,Any]:
-        return self.__store.gets_dict(self.__keys)
-
-    def bind(self, keys: tuple[str],observers: tuple[Callable[[Any | None], None]]) -> None:
-        for key in keys:
-            if key not in self.__keys:
-                raise KeyError(key)
-        self.__store.bind(keys,observers)
-
-    def bind_self(self,*observers: Callable)
-        prev_len = len(self.__observers)
-        self.__observers.update(observers)
-        if len(self.__observers) < prev_len + len(observers):
-            raise RedundancyError(
-                target=tuple(
-                    observer for observer in observers if observer in self.__observers
-                ),
-                message="redudancy observer was given.",
-            )
-
-    def __call_observer(self) -> None:
-        self_observers = self.__observers
-        for observer in self_observers:
-            observer(self)
 
 StateType: TypeAlias = IState | State | ReactiveState
