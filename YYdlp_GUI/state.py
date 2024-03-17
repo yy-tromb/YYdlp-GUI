@@ -256,6 +256,7 @@ class Store(IStore):
         reactives: tuple[ReactiveStateDataType, ...] | None = None,
     ) -> None:
         # initialise object
+        self.__is_enabled_bind_self: bool = False
         self.__states: dict[str, State | ReactiveState] = {}
         self.__stores: dict[str, IStore] = {}
         self.__on_drops: set[Callable[[], None]] = set()
@@ -268,6 +269,11 @@ class Store(IStore):
             self.add_state(*state_keys)
         if reactives is not None:
             self.reactive(*reactives)
+
+    def __call_observer(self) -> None:
+        self_observers = self.__observer # faster
+        for observer in self_observers:
+            observer(self)
 
     def state(self, *data_pairs: StateDataType) -> None:
         self_states = self.__states # faster
@@ -352,7 +358,7 @@ class Store(IStore):
             if key in self_stores:
                 self_stores[key].bind_self(*observers)
 
-    def bind_self(self, *observers: Callable[[Store],None]) -> None:
+    def bind_self(self, *observers: Callable[[IStore],None]) -> None:
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
@@ -425,11 +431,13 @@ class StateRefs(IStateRef):
         self.__store: IStore = store
         self.__keys: tuple[str] = keys
         self.__observers
+        for key in keys:
+            self.__store[key].bind(lambda _:self.__call_observer())
 
     def keys(self) -> tuple[str]:
         return self.__keys
 
-    def gets(self) -> dict[str,Any]:
+    def gets_dict(self) -> dict[str,Any]:
         return self.__store.gets_dict(self.__keys)
 
     def bind(self, keys: tuple[str],observers: tuple[Callable[[Any | None], None]]) -> None:
@@ -449,7 +457,9 @@ class StateRefs(IStateRef):
                 message="redudancy observer was given.",
             )
 
-    def _update(self) -> None:
-        pass
+    def __call_observer(self) -> None:
+        self_observers = self.__observers
+        for observer in self_observers:
+            observer(self)
 
 StateType: TypeAlias = IState | State | ReactiveState
