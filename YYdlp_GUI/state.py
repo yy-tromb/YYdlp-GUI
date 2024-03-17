@@ -170,13 +170,13 @@ class ReactiveState(IState, Generic[_T]):
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            state.bind(lambda _: self.update())
+            state.bind(lambda _: self.__update())
 
     def get(self) -> _T | None:
         """return current value"""
         return self.__value
 
-    def update(self) -> None:
+    def __update(self) -> None:
         # --original comment--
         # コンストラクタで渡された計算用の関数を再度呼び出し、値を更新する
         new_value = self.__formula(*self.__reliances)
