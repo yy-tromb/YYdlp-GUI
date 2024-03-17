@@ -432,7 +432,7 @@ class StateRefs(IStateRef):
         self.__keys: tuple[str] = keys
         self.__observers
         for key in keys:
-            self.__store[key].bind(lambda _:self.__call_observer())
+            store[key].bind(lambda _:self.__call_observer())
 
     def keys(self) -> tuple[str]:
         return self.__keys
