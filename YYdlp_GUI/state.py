@@ -254,6 +254,7 @@ class Store(IStore):
         states: tuple[StateDataType, ...] | None = None,
         state_keys: tuple[str] | None = None,
         reactives: tuple[ReactiveStateDataType, ...] | None = None,
+        use_bind_self: bool | None = False
     ) -> None:
         # initialise object
         self.__is_enabled_bind_self: bool = False
@@ -271,9 +272,14 @@ class Store(IStore):
             self.reactive(*reactives)
 
     def __call_observer(self) -> None:
-        self_observers = self.__observer # faster
-        for observer in self_observers:
+        for observer in self.__observers:
             observer(self)
+
+    def __enable_bind_self(self):
+        for state in self.__states
+            state.bind(lambda _: self.__call_observer())
+        for store in self.__stores:
+            store.bind(lambda _: self.__call_observer())
 
     def state(self, *data_pairs: StateDataType) -> None:
         self_states = self.__states # faster
@@ -282,6 +288,8 @@ class Store(IStore):
                 raise RedudancyError(target=pair[0],message=f"""key:"{}" has already existed.""")
             else:
                 self_states[pair[0]] = State(pair[1])
+                if self.__is_enabled_bind_self:
+                    state.bind(self.__call_observer)
 
     def add_state(self, *keys: str) -> None:
         """add_state
@@ -360,7 +368,7 @@ class Store(IStore):
 
     def bind_self(self, *observers: Callable[[IStore],None]) -> None:
         if self.__is_enabled_bind_self is False:
-            self.__enabled_bind_self()
+            self.__enable_bind_self()
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
