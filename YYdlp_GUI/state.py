@@ -264,6 +264,7 @@ class Store(IStore):
             observer(self)
 
     def __enable_bind_self(self):
+        self.__is_enabled_bind_self = True
         for state in self.__states:
             state.bind(lambda _: self.__call_observer())
         for store in self.__stores:
@@ -293,6 +294,8 @@ class Store(IStore):
                 )
             else:
                 self_states[key] = State(None)
+                if self.__is_enabled_bind_self:
+                    self_states[key].binf(self.__call_observer)
 
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
         self_states = self.__states  # faster
@@ -303,6 +306,8 @@ class Store(IStore):
                 )
             else:
                 self_states[data[0]] = ReactiveState(data[1], data[2])
+                if self.__is_enabled_bind_self:
+                    self_states[data[0]].bind(self.__call_observer)
 
     def store(
         self,
@@ -318,6 +323,8 @@ class Store(IStore):
             )
         else:
             self.__stores[name] = store
+            if self.__is_enabled_bind_self:
+                self.__stores[name].bind(self.__call_observer)
         return store
 
     def remove(self, *keys: str) -> None:
