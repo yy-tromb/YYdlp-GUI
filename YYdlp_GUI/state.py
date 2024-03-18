@@ -163,7 +163,7 @@ class ReactiveState(IState, Generic[_T]):
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            state.bind(lambda _: self.__update())
+            state.bind(self.__update)
 
     def get(self) -> _T | None:
         """return current value"""
@@ -216,14 +216,14 @@ class StoreKey:
     state: State | ReactiveState
 
 
-class IStore:
+class IStore(metaclass=ABCMeta):
     pass
     ########################
     # ToDo!!!!!!!!!!!!!!!!!#
     ########################
 
 
-class IStateRefs(Generic[_T]):
+class IStateRefs(Generic[_T],metaclass=ABCMeta):
     pass
 
 
@@ -237,7 +237,7 @@ class StateRefs(IStateRefs):
         self.__keys: tuple[str] = keys
         self.__observers: set[Callable] = set()
         for key in keys:
-            store[key].bind(lambda _: self.__call_observer())
+            store[key].bind(self.__call_observer)
 
     def keys(self) -> tuple[str]:
         return self.__keys
