@@ -226,50 +226,6 @@ class IStore(metaclass=ABCMeta):
 class IStateRefs(Generic[_T],metaclass=ABCMeta):
     pass
 
-
-class StateRefs(IStateRefs):
-    def __init__(
-        self,
-        store: IStore,
-        keys: tuple[str],
-    ) -> None:
-        self.__store: IStore = store
-        self.__keys: tuple[str] = keys
-        self.__observers: set[Callable] = set()
-        for key in keys:
-            store[key].bind(self.__call_observer)
-
-    def keys(self) -> tuple[str]:
-        return self.__keys
-
-    def gets_dict(self) -> dict[str, Any]:
-        return self.__store.gets_dict(self.__keys)
-
-    def bind(
-        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
-    ) -> None:
-        for key in keys:
-            if key not in self.__keys:
-                raise KeyError(key)
-        self.__store.bind(keys, observers)
-
-    def bind_self(self, *observers: Callable):
-        prev_len = len(self.__observers)
-        self.__observers.update(observers)
-        if len(self.__observers) < prev_len + len(observers):
-            raise RedundancyError(
-                target=tuple(
-                    observer for observer in observers if observer in self.__observers
-                ),
-                message="redudancy observer was given.",
-            )
-
-    def __call_observer(self) -> None:
-        self_observers = self.__observers
-        for observer in self_observers:
-            observer(self)
-
-
 StateDataType: TypeAlias = tuple[str, Any | None]
 ReactiveStateDataType: TypeAlias = tuple[
     str,
@@ -480,5 +436,46 @@ class Store(IStore):
     def refs(self, *keys: str) -> IStateRefs:
         return StateRefs(store=self, keys=keys)
 
+class StateRefs(IStateRefs):
+    def __init__(
+        self,
+        store: IStore,
+        keys: tuple[str],
+    ) -> None:
+        self.__store: IStore = store
+        self.__keys: tuple[str] = keys
+        self.__observers: set[Callable] = set()
+        for key in keys:
+            store[key].bind(self.__call_observer)
+
+    def keys(self) -> tuple[str]:
+        return self.__keys
+
+    def gets_dict(self) -> dict[str, Any]:
+        return self.__store.gets_dict(self.__keys)
+
+    def bind(
+        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
+    ) -> None:
+        for key in keys:
+            if key not in self.__keys:
+                raise KeyError(key)
+        self.__store.bind(keys, observers)
+
+    def bind_self(self, *observers: Callable):
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given.",
+            )
+
+    def __call_observer(self) -> None:
+        self_observers = self.__observers
+        for observer in self_observers:
+            observer(self)
 
 StateType: TypeAlias = IState | State | ReactiveState
