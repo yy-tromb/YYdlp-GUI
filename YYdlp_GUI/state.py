@@ -255,7 +255,7 @@ class Store(IStore):
         if states is not None:
             self.state(*states)
         if state_keys is not None:
-            self.add_state(*state_keys)
+            self.state_keys(*state_keys)
         if reactives is not None:
             self.reactive(*reactives)
 
@@ -282,7 +282,7 @@ class Store(IStore):
                 if self.__is_enabled_bind_self:
                     self_states[pair[0]].bind(self.__call_observer)
 
-    def add_state(self, *keys: str) -> None:
+    def state_keys(self, *keys: str) -> None:
         """add_state
         This method is equal `store_instance.state(("key",None),("key2",))`
         """
@@ -355,7 +355,7 @@ class Store(IStore):
         for on_drop in self.__on_drops:
             on_drop()
 
-    def bind(
+    def bind_states(
         self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
     ) -> None:
         self_states = self.__states  # faster
@@ -371,9 +371,9 @@ class Store(IStore):
         self_stores = self.__stores  # faster
         for key in keys:
             if key in self_stores:
-                self_stores[key].bind_self(*observers)
+                self_stores[key].bind(*observers)
 
-    def bind_self(self, *observers: Callable[[IStore], None]) -> None:
+    def bind(self, *observers: Callable[[IStore], None]) -> None:
         if self.__is_enabled_bind_self is False:
             self.__enable_bind_self()
         prev_len = len(self.__observers)
@@ -461,7 +461,7 @@ class StateRefs(IStateRefs):
     def gets_dict(self) -> dict[str, Any]:
         return self.__store.gets_dict(self.__keys)
 
-    def bind(
+    def bind_states(
         self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
     ) -> None:
         for key in keys:
@@ -469,7 +469,7 @@ class StateRefs(IStateRefs):
                 raise KeyError(key)
         self.__store.bind(keys, observers)
 
-    def bind_self(self, *observers: Callable):
+    def bind(self, *observers: Callable):
         prev_len = len(self.__observers)
         self.__observers.update(observers)
         if len(self.__observers) < prev_len + len(observers):
