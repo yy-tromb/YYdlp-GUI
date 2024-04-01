@@ -163,7 +163,7 @@ class ReactiveState(IState, Generic[_T]):
         # --original comment--
         # 依存関係にあるStateが変更されたら、再計算処理を実行するようにする
         for state in reliance_states:
-            state.bind(lambda _: self.__update())
+            state.bind(self.__update)
 
     def get(self) -> _T | None:
         """return current value"""
@@ -216,59 +216,15 @@ class StoreKey:
     state: State | ReactiveState
 
 
-class IStore:
+class IStore(metaclass=ABCMeta):
     pass
     ########################
     # ToDo!!!!!!!!!!!!!!!!!#
     ########################
 
 
-class IStateRefs(Generic[_T]):
+class IStateRefs(Generic[_T],metaclass=ABCMeta):
     pass
-
-
-class StateRefs(IStateRefs):
-    def __init__(
-        self,
-        store: IStore,
-        keys: tuple[str],
-    ) -> None:
-        self.__store: IStore = store
-        self.__keys: tuple[str] = keys
-        self.__observers: set[Callable] = set()
-        for key in keys:
-            store[key].bind(lambda _: self.__call_observer())
-
-    def keys(self) -> tuple[str]:
-        return self.__keys
-
-    def gets_dict(self) -> dict[str, Any]:
-        return self.__store.gets_dict(self.__keys)
-
-    def bind(
-        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
-    ) -> None:
-        for key in keys:
-            if key not in self.__keys:
-                raise KeyError(key)
-        self.__store.bind(keys, observers)
-
-    def bind_self(self, *observers: Callable):
-        prev_len = len(self.__observers)
-        self.__observers.update(observers)
-        if len(self.__observers) < prev_len + len(observers):
-            raise RedundancyError(
-                target=tuple(
-                    observer for observer in observers if observer in self.__observers
-                ),
-                message="redudancy observer was given.",
-            )
-
-    def __call_observer(self) -> None:
-        self_observers = self.__observers
-        for observer in self_observers:
-            observer(self)
-
 
 StateDataType: TypeAlias = tuple[str, Any | None]
 ReactiveStateDataType: TypeAlias = tuple[
@@ -299,7 +255,7 @@ class Store(IStore):
         if states is not None:
             self.state(*states)
         if state_keys is not None:
-            self.add_state(*state_keys)
+            self.state_keys(*state_keys)
         if reactives is not None:
             self.reactive(*reactives)
 
@@ -308,6 +264,7 @@ class Store(IStore):
             observer(self)
 
     def __enable_bind_self(self):
+        self.__is_enabled_bind_self = True
         for state in self.__states:
             state.bind(lambda _: self.__call_observer())
         for store in self.__stores:
@@ -325,7 +282,7 @@ class Store(IStore):
                 if self.__is_enabled_bind_self:
                     self_states[pair[0]].bind(self.__call_observer)
 
-    def add_state(self, *keys: str) -> None:
+    def state_keys(self, *keys: str) -> None:
         """add_state
         This method is equal `store_instance.state(("key",None),("key2",))`
         """
@@ -337,6 +294,8 @@ class Store(IStore):
                 )
             else:
                 self_states[key] = State(None)
+                if self.__is_enabled_bind_self:
+                    self_states[key].binf(self.__call_observer)
 
     def reactive(self, *data_sets: ReactiveStateDataType) -> None:
         self_states = self.__states  # faster
@@ -347,6 +306,8 @@ class Store(IStore):
                 )
             else:
                 self_states[data[0]] = ReactiveState(data[1], data[2])
+                if self.__is_enabled_bind_self:
+                    self_states[data[0]].bind(self.__call_observer)
 
     def store(
         self,
@@ -362,6 +323,8 @@ class Store(IStore):
             )
         else:
             self.__stores[name] = store
+            if self.__is_enabled_bind_self:
+                self.__stores[name].bind(self.__call_observer)
         return store
 
     def remove(self, *keys: str) -> None:
@@ -392,7 +355,7 @@ class Store(IStore):
         for on_drop in self.__on_drops:
             on_drop()
 
-    def bind(
+    def bind_states(
         self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
     ) -> None:
         self_states = self.__states  # faster
@@ -408,9 +371,9 @@ class Store(IStore):
         self_stores = self.__stores  # faster
         for key in keys:
             if key in self_stores:
-                self_stores[key].bind_self(*observers)
+                self_stores[key].bind(*observers)
 
-    def bind_self(self, *observers: Callable[[IStore], None]) -> None:
+    def bind(self, *observers: Callable[[IStore], None]) -> None:
         if self.__is_enabled_bind_self is False:
             self.__enable_bind_self()
         prev_len = len(self.__observers)
@@ -480,5 +443,46 @@ class Store(IStore):
     def refs(self, *keys: str) -> IStateRefs:
         return StateRefs(store=self, keys=keys)
 
+class StateRefs(IStateRefs):
+    def __init__(
+        self,
+        store: IStore,
+        keys: tuple[str],
+    ) -> None:
+        self.__store: IStore = store
+        self.__keys: tuple[str] = keys
+        self.__observers: set[Callable] = set()
+        for key in keys:
+            store[key].bind(self.__call_observer)
+
+    def keys(self) -> tuple[str]:
+        return self.__keys
+
+    def gets_dict(self) -> dict[str, Any]:
+        return self.__store.gets_dict(self.__keys)
+
+    def bind_states(
+        self, keys: tuple[str], observers: tuple[Callable[[Any | None], None]]
+    ) -> None:
+        for key in keys:
+            if key not in self.__keys:
+                raise KeyError(key)
+        self.__store.bind(keys, observers)
+
+    def bind(self, *observers: Callable):
+        prev_len = len(self.__observers)
+        self.__observers.update(observers)
+        if len(self.__observers) < prev_len + len(observers):
+            raise RedundancyError(
+                target=tuple(
+                    observer for observer in observers if observer in self.__observers
+                ),
+                message="redudancy observer was given.",
+            )
+
+    def __call_observer(self) -> None:
+        self_observers = self.__observers
+        for observer in self_observers:
+            observer(self)
 
 StateType: TypeAlias = IState | State | ReactiveState
