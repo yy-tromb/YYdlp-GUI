@@ -232,7 +232,8 @@ ReactiveStateDataType: TypeAlias = tuple[
     Callable[[*tuple[IState, ...]], Any],
     # *tuple[] is Python3.11 feature.
     # Can't use in PyPy latest 3.10
-    tuple[IState, ...],
+    tuple[str, ...],
+    tuple[IState ...]
 ]
 
 
@@ -305,7 +306,8 @@ class Store(IStore):
                     target=data[0], message=f"""key:"{data[0]}" has already existed."""
                 )
             else:
-                self_states[data[0]] = ReactiveState(data[1], data[2])
+                reliances_in_store = (self.__states[key] for key in data[2])
+                self_states[data[0]] = ReactiveState(data[1], (*reliances_in_store,*data[2]))
                 if self.__is_enabled_bind_self:
                     self_states[data[0]].bind(self.__call_observer)
 
