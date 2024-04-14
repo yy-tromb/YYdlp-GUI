@@ -233,7 +233,7 @@ ReactiveStateDataType: TypeAlias = tuple[
     # *tuple[] is Python3.11 feature.
     # Can't use in PyPy latest 3.10
     tuple[str, ...],
-    tuple[IState ...]
+    tuple[IState, ...],
 ]
 
 
