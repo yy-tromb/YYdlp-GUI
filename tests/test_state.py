@@ -111,5 +111,23 @@ class TestReactiveState:
 
 class TestStore:
 
+    def formula_1(self,value):
+        return list(range(0,value))
+
     def init(self):
-        pass
+        self.state_1 = State(0)
+        self.state_2 = State("inited")
+        self.rct_state = ReactiveState(
+            formula=self.formula_1,
+            reliance_states=(self.state_1))
+    
+    def test_init(self):
+        # self.init()
+        store = Store(
+            name="test_init",
+            states=(
+                ("state_1",0),("state_2",None)),
+            reactives=(
+                ("rct_state_1",self.formula_1,("state_1"))
+                )
+                )
