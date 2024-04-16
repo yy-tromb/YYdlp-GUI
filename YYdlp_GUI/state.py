@@ -271,17 +271,17 @@ class Store(IStore):
         for store in self.__stores:
             store.bind(lambda _: self.__call_observer())
 
-    def state(self, *data_pairs: StateDataType) -> None:
+    def state(self, *state_data: StateDataType) -> None:
         self_states = self.__states  # faster
-        for pair in data_pairs:
-            if pair[0] in self_states:
+        for data in state_data:
+            if data[0] in self_states:
                 raise RedundancyError(
-                    target=pair[0], message=f"""key:"{pair[0]}" has already existed."""
+                    target=data[0], message=f"""key:"{data[0]}" has already existed."""
                 )
             else:
-                self_states[pair[0]] = State(pair[1])
+                self_states[data[0]] = State(data[1])
                 if self.__is_enabled_bind_self:
-                    self_states[pair[0]].bind(self.__call_observer)
+                    self_states[data[0]].bind(self.__call_observer)
 
     def state_keys(self, *keys: str) -> None:
         """add_state
@@ -298,9 +298,9 @@ class Store(IStore):
                 if self.__is_enabled_bind_self:
                     self_states[key].binf(self.__call_observer)
 
-    def reactive(self, *data_sets: ReactiveStateDataType) -> None:
+    def reactive(self, *reactive_state_data: ReactiveStateDataType) -> None:
         self_states = self.__states  # faster
-        for data in data_sets:
+        for data in reactive_state_data:
             if data[0] in self_states:
                 raise RedundancyError(
                     target=data[0], message=f"""key:"{data[0]}" has already existed."""
