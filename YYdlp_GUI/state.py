@@ -226,14 +226,22 @@ class IStore(metaclass=ABCMeta):
 class IStateRefs(Generic[_T],metaclass=ABCMeta):
     pass
 
-StateDataType: TypeAlias = tuple[str, Any | None]
+StateDataType: TypeAlias = tuple[
+    str, # The name of State
+    Any | None # first value
+    ]
 ReactiveStateDataType: TypeAlias = tuple[
-    str,
-    Callable[[*tuple[IState, ...]], Any],
+    str, # The name of ReactiveState
+    Callable[[*tuple[Any, ...]], Any],
+    # formula function.
+    # This should accept tha value of reliance states,
+    # and return as state value.
     # *tuple[] is Python3.11 feature.
     # Can't use in PyPy latest 3.10
     tuple[str, ...],
+    # State or ReactiveState names in Store.
     tuple[IState, ...],
+    # State or ReactiveState names out of Store
 ]
 
 
