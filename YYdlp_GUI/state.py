@@ -125,12 +125,17 @@ Thanks to ForestMountain1234
     def unbind(self, *observers: Callable[[_T | None], None]) -> None:
         """unbind observer functions."""
         if not observers:
-            self.__observers.clear()
+            raise RedundancyError(
+                target=observers,
+                message="No observers given"
+            )
         else:
             self_observers = self.__observers  # faster
             for observer in observers:
                 self_observers.remove(observer)
 
+    def unbind_all(self):
+        self.__observers.clear()
 
 class ReactiveState(IState, Generic[_T]):
     """
@@ -202,12 +207,17 @@ class ReactiveState(IState, Generic[_T]):
 
     def unbind(self, *observers: Callable[[_T | None], None]):
         if not observers:
-            self.__observers.clear()
+            raise RedundancyError(
+                target=observers,
+                message="No observers given"
+            )
         else:
             self_observers = self.__observers  # faster
             for observer in observers:
                 self_observers.remove(observer)
 
+    def unbind_all(self):
+        self.__observers.clear()
 
 @dataclass
 class StoreKey:
