@@ -325,7 +325,7 @@ class Store(IStore):
                 )
             else:
                 reliances_in_store = (self.__states[key] for key in data[2])
-                self_states[data[0]] = ReactiveState(data[1], (*reliances_in_store,*data[2]))
+                self_states[data[0]] = ReactiveState(data[1], (*reliances_in_store,*data[3]))
                 if self.__is_enabled_bind_self:
                     self_states[data[0]].bind(self.__call_observer)
 
