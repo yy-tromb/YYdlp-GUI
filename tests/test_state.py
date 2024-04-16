@@ -112,18 +112,20 @@ class TestReactiveState:
 class TestStore:
 
     def formula_1(self,value):
-        return list(range(0,value))
+        return list(range(value))
 
     def formula_2(self,new_str):
         self.__last_formula_2 = self.__last_formula_2 + new_str
         return self.__last_formula_2
 
     def init(self):
+        self.__last_formula_2 = ""
         self.state_1 = State(0)
         self.state_2 = State("inited")
         self.rct_state = ReactiveState(
             formula=lambda num,_str:f"{num}:{_str}\n",
             reliance_states=(self.state_1,self.state_2))
+        assert self.rct_state.get() == "0:inited"
     
     def test_init(self):
         self.init()
@@ -136,4 +138,8 @@ class TestStore:
                 ("rct_state_2",self.formula_2,(),self.rct_state)
                 )
         )
-        
+        assert store.get("state_1") == 0
+        assert store.get("state_2") == None
+        assert tuple(store.get("rct_state_1")) == tuple(range(0))
+        assert store.get("rct_state_2") == self.rct_state.get()
+        self.store = store
