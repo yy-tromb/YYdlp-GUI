@@ -454,7 +454,7 @@ class Store(IStore):
     def gets(self, keys: tuple[str]) -> tuple[Any]:
         return (self.__states[key].get() for key in keys)
 
-    def gets_dict(self, keys: tuple[str]) -> dict[str, Any]:
+    def get_dict(self, keys: tuple[str]) -> dict[str, Any]:
         return {key: self.__states[key].get() for key in keys}
 
     def get_store(self, name: str) -> IStore:
