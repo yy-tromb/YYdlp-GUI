@@ -134,7 +134,7 @@ class TestStore:
             states=(
                 ("state_1",0),("state_2",None)),
             reactives=(
-                ("rct_state_1",self.formula_1,("state_1")),
+                ("rct_state_1",self.formula_1,("state_1"),()),
                 ("rct_state_2",self.formula_2,(),self.rct_state)
                 )
         )
