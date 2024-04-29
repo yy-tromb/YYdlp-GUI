@@ -112,7 +112,7 @@ class TestReactiveState:
 class TestStore:
 
     def formula_1(self,value):
-        return list(range(value))
+        return tuple(range(value))
 
     def formula_2(self,new_str):
         self.__last_formula_2 = self.__last_formula_2 + new_str
@@ -140,6 +140,21 @@ class TestStore:
         )
         assert store.get("state_1") == 0
         assert store.get("state_2") == None
-        assert tuple(store.get("rct_state_1")) == tuple(range(0))
+        assert store.get("rct_state_1") == tuple(range(0))
         assert store.get("rct_state_2") == self.rct_state.get()
         self.store = store
+
+    def test_add(self):
+        store = self.store
+        store.state(("state_3",0),("state_4","state_4"))
+        assert store.get("state_3") == 0
+        assert store.get("state_4") == "state_4"
+        store.state_keys("state_5","state_6")
+        assert store.get("state_5") == None
+        assert store.get("state_6") == None
+
+    def test_remove(self):
+        store.remove("state_3","state_4","state_5","state_6")
+        with pytest.raises(KeyError) as err:
+            store.get("state_3")
+            assert err
