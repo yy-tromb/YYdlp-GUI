@@ -123,7 +123,7 @@ class TestStore:
         self.state_1 = State(0)
         self.state_2 = State("inited")
         self.rct_state = ReactiveState(
-            formula=lambda num,_str:f"{num}:{_str}\n",
+            formula=lambda num,s:f"{num}:{s}\n",
             reliance_states=(self.state_1,self.state_2))
         assert self.rct_state.get() == "0:inited"
     
