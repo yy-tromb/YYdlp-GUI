@@ -152,9 +152,16 @@ class TestStore:
         store.state_keys("state_5","state_6")
         assert store.get("state_5") == None
         assert store.get("state_6") == None
+        store.reactive(("rct_state_3",lambda v:v,("state_3"),()),
+                       ("rct_state_4",lambda v:v,("state_4"),())
+                       )
+        assert store.get("rct_state_3") == store.get("state_3")
+        assert store.get("rct_state_4") == store.get("state_4")
 
     def test_remove(self):
-        store.remove("state_3","state_4","state_5","state_6")
+        store.remove("state_3","state_4","state_5","state_6","rct_state_3","rct_state_4")
         with pytest.raises(KeyError) as err:
             store.get("state_3")
-            assert err
+            assert isinstance(err.value,KeyError)
+
+    
