@@ -110,6 +110,8 @@ class TestReactiveState:
             assert redudancy_error.target[1].__name__ == "bind_assert_value"
 
 class TestStore:
+    def __init__(self):
+        self.history = set()
 
     def formula_1(self,value):
         return tuple(range(value))
@@ -126,6 +128,7 @@ class TestStore:
             formula=lambda num,s:f"{num}:{s}\n",
             reliance_states=(self.state_1,self.state_2))
         assert self.rct_state.get() == "0:inited"
+        self.history = {"init"}
     
     def test_init(self):
         self.init()
@@ -143,8 +146,11 @@ class TestStore:
         assert store.get("rct_state_1") == tuple(range(0))
         assert store.get("rct_state_2") == self.rct_state.get()
         self.store = store
+        self.history.add("test_init")
 
     def test_add(self):
+        if "test_init" not in self.history:
+            self.test_init()
         store = self.store
         store.state(("state_3",0),("state_4","state_4"))
         assert store.get("state_3") == 0
@@ -159,6 +165,8 @@ class TestStore:
         assert store.get("rct_state_4") == store.get("state_4")
 
     def test_remove(self):
+        if "test_add" not in self.history:
+            self.test_add()
         store.remove("state_3","state_4","state_5","state_6","rct_state_3","rct_state_4")
         with pytest.raises(KeyError) as err:
             store.get("state_3")
