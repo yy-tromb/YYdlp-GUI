@@ -1,3 +1,5 @@
+## ***Now, I'm developping slowly, Please wait a lot***
+
 # YYdlp-GUI
 my [yt-dlp](https://github.com/yt-dlp/yt-dlp/tree/master) GUI wrapper   
 
