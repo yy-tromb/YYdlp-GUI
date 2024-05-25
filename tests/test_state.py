@@ -110,9 +110,11 @@ class TestReactiveState:
             assert redudancy_error.target[1].__name__ == "bind_assert_value"
 
 class TestStore:
+    def __init__(self):
+        self.history = set()
 
     def formula_1(self,value):
-        return list(range(value))
+        return tuple(range(value))
 
     def formula_2(self,new_str):
         self.__last_formula_2 = self.__last_formula_2 + new_str
@@ -123,9 +125,10 @@ class TestStore:
         self.state_1 = State(0)
         self.state_2 = State("inited")
         self.rct_state = ReactiveState(
-            formula=lambda num,_str:f"{num}:{_str}\n",
+            formula=lambda num,s:f"{num}:{s}\n",
             reliance_states=(self.state_1,self.state_2))
         assert self.rct_state.get() == "0:inited"
+        self.history = {"init"}
     
     def test_init(self):
         self.init()
@@ -134,12 +137,39 @@ class TestStore:
             states=(
                 ("state_1",0),("state_2",None)),
             reactives=(
-                ("rct_state_1",self.formula_1,("state_1")),
+                ("rct_state_1",self.formula_1,("state_1"),()),
                 ("rct_state_2",self.formula_2,(),self.rct_state)
                 )
         )
         assert store.get("state_1") == 0
         assert store.get("state_2") == None
-        assert tuple(store.get("rct_state_1")) == tuple(range(0))
+        assert store.get("rct_state_1") == tuple(range(0))
         assert store.get("rct_state_2") == self.rct_state.get()
         self.store = store
+        self.history.add("test_init")
+
+    def test_add(self):
+        if "test_init" not in self.history:
+            self.test_init()
+        store = self.store
+        store.state(("state_3",0),("state_4","state_4"))
+        assert store.get("state_3") == 0
+        assert store.get("state_4") == "state_4"
+        store.state_keys("state_5","state_6")
+        assert store.get("state_5") == None
+        assert store.get("state_6") == None
+        store.reactive(("rct_state_3",lambda v:v,("state_3"),()),
+                       ("rct_state_4",lambda v:v,("state_4"),())
+                       )
+        assert store.get("rct_state_3") == store.get("state_3")
+        assert store.get("rct_state_4") == store.get("state_4")
+
+    def test_remove(self):
+        if "test_add" not in self.history:
+            self.test_add()
+        store.remove("state_3","state_4","state_5","state_6","rct_state_3","rct_state_4")
+        with pytest.raises(KeyError) as err:
+            store.get("state_3")
+            assert isinstance(err.value,KeyError)
+
+    
