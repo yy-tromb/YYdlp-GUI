@@ -9,22 +9,22 @@ packages = [{include = "YYdlp_GUI"}]
 
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
-flet = "^0.21.2"
-yt-dlp = "^2024.5.27"
+flet = "^0.25.1"
+yt-dlp = "^2024.11.18"
 asyncio = "^3.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-black = "^24.3.0"
-ruff = "^0.0.284"
-pytest-mock = "^3.11.1"
-mypy = "^1.5.1"
-pyinstaller = "^6.0.0"
-pytest-cov = "^4.1.0"
+pytest = "^8.3.3"
+black = "^24.10.0"
+ruff = "^0.8.1"
+pytest-mock = "^3.14.0"
+mypy = "^1.13.0"
+pyinstaller = "^6.11.1"
+pytest-cov = "^6.0.0"
 pytest-watch = "^4.2.0"
-nox = "^2023.4.22"
-inari = {extras = ["mkdocs"], version = "^0.2.1"}
+nox = "^2024.10.9"
+inari = {extras = ["mkdocs"], version = "0.2.1"}
 
 [tool.ruff]
 select = ["F","E","W","I","B","PL","RUF","UP"]
