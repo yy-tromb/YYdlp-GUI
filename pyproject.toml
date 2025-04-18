@@ -10,7 +10,7 @@ packages = [{include = "YYdlp_GUI"}]
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
 flet = "^0.25.1"
-yt-dlp = "^2024.11.18"
+yt-dlp = "2025.3.31"
 asyncio = "^3.4.3"
 
 
