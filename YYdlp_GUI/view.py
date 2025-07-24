@@ -1,16 +1,19 @@
-import flet as ft
-from .mycontrols import MyAppBar
 import abc
-from .yt_dlp_wrapper import MediaInfo, MediaDownLoad
+
+import flet as ft
+
+from .mycontrols import MyAppBar
+from .yt_dlp_wrapper import MediaDownLoad, MediaInfo
 
 
 def __init__():
     pass
 
+
 class IMyView(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, page: ft.Page) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     view: ft.View
 
@@ -54,13 +57,13 @@ class SettingsView(IMyView):
         dialog: ft.AlertDialog = ft.AlertDialog(
             title=ft.Row(
                 controls=[
-                    ft.Text("Settings is now developping.You can't available now")
+                    ft.Text("Settings is now developping.You can't available now"),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 expand=1,
             ),
-            open=True
+            open=True,
             # on_dismiss=lambda _:print("dissmissed")
         )
         self.page.dialog = dialog
@@ -74,15 +77,15 @@ class View:
         settingsView: type[IMyView] = SettingsView,
     ) -> None:
         self.views = ["main", "setting"]
-        self.mainViewClass=mainView
-        self.settingsViewClass=settingsView
+        self.mainViewClass = mainView
+        self.settingsViewClass = settingsView
 
     def run(self) -> None:
-        ft.app(target=self.main,use_color_emoji=True,assets_dir="assets")
+        ft.app(target=self.main, use_color_emoji=True, assets_dir="assets")
 
     def main(
         self,
-        page: ft.Page
+        page: ft.Page,
     ) -> None:
         self.page: ft.Page = page
         page.title = "YYdlp-GUI v0.1"
